@@ -21,6 +21,7 @@ function Ticket () {
   const[usuario, setUsuario] = useState(null);
   const[tipoTickets, setTipoTickets] = useState(null);
   const[mensajeModal, setMensajeModal] = useState('');
+  const[varianteModal, setVarianteModal] = useState('');
   const[valorUbicacion, setValorUbicacion] = useState('');
   const[valorDescripcion, setValorDescripcion] = useState('');
   const[valorTipo, setValorTipo] = useState(new Set([]));
@@ -42,7 +43,7 @@ function Ticket () {
       switch (data.status) {
         case 500:
           onOpen();
-          setMensajeModal("Error");
+          setVarianteModal("error");
           console.error(data.mensaje);
           break;
         case 200:
@@ -80,6 +81,8 @@ function Ticket () {
   .then(data => {
     switch (data.status) {
       case 500:
+        onOpen();
+        setVarianteModal("error");
         console.error(data.mensaje);
       break;
       case 201:
@@ -88,6 +91,7 @@ function Ticket () {
       case 400:
       case 401:
         onOpen();
+        setVarianteModal("advertencia");
         setMensajeModal(data.mensaje);
       break;
       default:
@@ -166,15 +170,9 @@ function Ticket () {
       </Layout>
       <ModalComp
         isOpen={isOpen}
-        onOpen={onOpen}
         onOpenChange={onOpenChange}
+        variant={varianteModal}
         mensaje={mensajeModal}
-      />
-      <ModalComp
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        variant="error" 
-        mensaje="Hubo un problema al guardar la información."
       />
       </>
     );

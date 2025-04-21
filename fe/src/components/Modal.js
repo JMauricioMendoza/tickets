@@ -49,7 +49,7 @@ function ModalComp({ isOpen, onOpenChange, variant, mensaje, titulo = "" }) {
               </ContenedorEncabezado>
             </ModalHeader>
             <ModalBody>
-              <p>{mensaje}</p>
+              <p>{variant === "error" ? "Error en el servidor." : mensaje}</p>
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onPress={onClose}>Aceptar</Button>

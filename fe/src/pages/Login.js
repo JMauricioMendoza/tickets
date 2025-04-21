@@ -24,7 +24,8 @@ function Login () {
   const [usuarioVacio, setUsuarioVacio] = useState(true);
   const [passwdVacio, setPasswdVacio] = useState(true);
   const [esVisible, setEsVisible] = useState(false);
-  const [mensajeModal, setMensajeModal] = useState('');
+  const[mensajeModal, setMensajeModal] = useState('');
+  const[varianteModal, setVarianteModal] = useState('');
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
@@ -47,6 +48,8 @@ function Login () {
     .then(data => {
       switch (data.status) {
         case 500:
+          onOpen();
+          setVarianteModal("error");
           console.error(data.mensaje);
         break;
         case 200:
@@ -56,6 +59,7 @@ function Login () {
         case 400:
         case 401:
           onOpen();
+          setVarianteModal("advertencia");
           setMensajeModal(data.mensaje);
         break;
         default:
@@ -109,8 +113,8 @@ function Login () {
       </Form>
       <ModalComp
         isOpen={isOpen}
-        onOpen={onOpen}
         onOpenChange={onOpenChange}
+        variant={varianteModal}
         mensaje={mensajeModal}
       />
     </Layout>

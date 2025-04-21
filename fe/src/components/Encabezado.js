@@ -66,8 +66,9 @@ function Encabezado({ usuario, setUsuario }) {
   );
 };
 
-function DropdownComp ({ usuario }) {
-  const [mensajeModal, setMensajeModal] = useState('');
+function DropdownComp ({ usuario }) {  
+  const[mensajeModal, setMensajeModal] = useState('');
+  const[varianteModal, setVarianteModal] = useState('');
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
@@ -82,7 +83,7 @@ function DropdownComp ({ usuario }) {
         switch (data.status) {
           case 500:
             onOpen();
-            setMensajeModal("Error");
+            setVarianteModal("error");
             console.error(data.mensaje);
           break;
           case 200:
@@ -91,6 +92,7 @@ function DropdownComp ({ usuario }) {
           break;
           case 400:
             onOpen();
+            setVarianteModal("advertencia");
             setMensajeModal(data.mensaje);
           break;
           default:
@@ -117,11 +119,11 @@ function DropdownComp ({ usuario }) {
       </DropdownMenu>
     </Dropdown>
     <ModalComp
-        isOpen={isOpen}
-        onOpen={onOpen}
-        onOpenChange={onOpenChange}
-        mensaje={mensajeModal}
-      />
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      variant={varianteModal}
+      mensaje={mensajeModal}
+    />
     </>
   );
 }

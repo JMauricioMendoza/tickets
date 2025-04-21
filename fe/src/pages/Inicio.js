@@ -15,7 +15,7 @@ import { AiOutlinePlusCircle } from "react-icons/ai";
 
 function Inicio () {
   const[usuario, setUsuario] = useState(null);
-  const[mensajeModal, setMensajeModal] = useState('');
+  const[varianteModal, setVarianteModal] = useState('');
   const[tickets, setTickets] = useState(null);
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
@@ -34,7 +34,7 @@ function Inicio () {
       switch (data.status) {
         case 500:
           onOpen();
-          setMensajeModal("Error");
+          setVarianteModal("error");
           console.error(data.mensaje);
           break;
         case 200:
@@ -77,9 +77,8 @@ function Inicio () {
     </Layout>
     <ModalComp
       isOpen={isOpen}
-      onOpen={onOpen}
       onOpenChange={onOpenChange}
-      mensaje={mensajeModal}
+      variant={varianteModal}
     />
     </>
   );
