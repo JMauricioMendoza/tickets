@@ -9,7 +9,14 @@ import {
 } from "@heroui/react";
 import { MdError, MdWarning, MdCheckCircle } from "react-icons/md";
 
-function ModalComp({ isOpen, onOpenChange, variant, mensaje, titulo = "" }) {
+function ModalComp({
+  isOpen,
+  onOpenChange,
+  variant,
+  mensaje,
+  titulo = "",
+  onAccept,
+}) {
   const getHeaderIcon = () => {
     switch (variant) {
       case "error":
@@ -63,7 +70,13 @@ function ModalComp({ isOpen, onOpenChange, variant, mensaje, titulo = "" }) {
               <p>{variant === "error" ? "Error en el servidor." : mensaje}</p>
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onPress={onClose}>
+              <Button
+                color="primary"
+                onPress={() => {
+                  if (onAccept) onAccept();
+                  onClose();
+                }}
+              >
                 Aceptar
               </Button>
             </ModalFooter>
