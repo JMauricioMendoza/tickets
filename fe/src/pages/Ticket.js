@@ -82,7 +82,9 @@ function Ticket() {
             console.error(data.mensaje);
             break;
           case 201:
-            TicketCreado();
+            onOpen();
+            setVarianteModal("correcto");
+            setMensajeModal(data.mensaje);
             break;
           case 400:
           case 401:
@@ -95,8 +97,6 @@ function Ticket() {
         }
       });
   }
-
-  function TicketCreado() {}
 
   useEffect(() => {
     ObtenerTipoTickets();
@@ -164,7 +164,6 @@ function Ticket() {
               <Button
                 type="button"
                 color="danger"
-                variant="light"
                 onPress={() => window.location.replace("/mis-tickets")}
               >
                 Cancelar
@@ -185,6 +184,7 @@ function Ticket() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
+        onAccept={() => window.location.replace("/mis-tickets")}
       />
     </>
   );
