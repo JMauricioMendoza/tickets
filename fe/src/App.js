@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 import { HeroUIProvider } from "@heroui/system";
 import Login from "./pages/Login";
-import Inicio from "./pages/Inicio";
+import MisTickets from "./pages/MisTickets";
 import Ticket from "./pages/Ticket";
 import RutaProtegida from "./utils/RutaProtegida";
 
@@ -18,7 +18,7 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           <Route element={<RutaProtegida />}>
-            <Route path="/inicio" element={<Inicio />} />
+            <Route path="/mis-tickets" element={<MisTickets />} />
             <Route path="/ticket" element={<Ticket />} />
           </Route>
 

@@ -165,7 +165,7 @@ function Ticket() {
                 type="button"
                 color="danger"
                 variant="light"
-                onPress={() => window.location.replace("/Inicio")}
+                onPress={() => window.location.replace("/mis-tickets")}
               >
                 Cancelar
               </Button>

@@ -31,7 +31,6 @@ function Login() {
         password: valorPasswd,
       }),
     })
-          window.location.replace('/Inicio');
       .then((response) => {
         return response.json();
       })
@@ -44,6 +43,7 @@ function Login() {
             break;
           case 200:
             sessionStorage.setItem("token", data.token);
+            window.location.replace("/mis-tickets");
             break;
           case 400:
           case 401:
@@ -63,7 +63,8 @@ function Login() {
   }, [valorUsuario, valorPasswd]);
 
   useEffect(() => {
-    if (sessionStorage.getItem("token")) window.location.replace('/inicio')
+    if (sessionStorage.getItem("token"))
+      window.location.replace("/mis-tickets");
   }, []);
 
   return (
