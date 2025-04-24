@@ -1,12 +1,5 @@
-import {
-  useState,
-  useEffect,
-  useCallback
-} from 'react'; 
-import { styled } from 'styled-components';
-import Layout from "../components/Layout";
-import ModalComp from '../components/Modal';
-import verificaVacio from '../utils/verificaVacio';
+import { useState, useEffect, useCallback } from "react";
+import { styled } from "styled-components";
 import {
   Input,
   Select,
@@ -14,95 +7,96 @@ import {
   Textarea,
   Button,
   useDisclosure,
-  Form
+  Form,
 } from "@heroui/react";
-  
-function Ticket () {
-  const[usuario, setUsuario] = useState(null);
-  const[tipoTickets, setTipoTickets] = useState(null);
-  const[mensajeModal, setMensajeModal] = useState('');
-  const[varianteModal, setVarianteModal] = useState('');
-  const[valorUbicacion, setValorUbicacion] = useState('');
-  const[valorDescripcion, setValorDescripcion] = useState('');
-  const[valorTipo, setValorTipo] = useState(new Set([]));
-  
-  const[descripcionVacia, setDescripcionVacia] = useState(true);
-  const[tipoVacia, setTipoVacia] = useState(true);
+import Layout from "../components/Layout";
+import ModalComp from "../components/Modal";
+import verificaVacio from "../utils/verificaVacio";
 
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+function Ticket() {
+  const [usuario, setUsuario] = useState(null);
+  const [tipoTickets, setTipoTickets] = useState(null);
+  const [mensajeModal, setMensajeModal] = useState("");
+  const [varianteModal, setVarianteModal] = useState("");
+  const [valorUbicacion, setValorUbicacion] = useState("");
+  const [valorDescripcion, setValorDescripcion] = useState("");
+  const [valorTipo, setValorTipo] = useState(new Set([]));
 
-  const ObtenerTipoTickets = useCallback ( () => {
-    fetch('http://localhost:8080/ObtenerTipoTicketsActivos', {
+  const [descripcionVacia, setDescripcionVacia] = useState(true);
+  const [tipoVacia, setTipoVacia] = useState(true);
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const ObtenerTipoTickets = useCallback(() => {
+    fetch("http://localhost:8080/ObtenerTipoTicketsActivos", {
       method: "GET",
       headers: {
-        "Authorization": "Bearer " + sessionStorage.getItem("token")
-      }
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
     })
-    .then(response => response.json())
-    .then(data => {
-      switch (data.status) {
-        case 500:
-          onOpen();
-          setVarianteModal("error");
-          console.error(data.mensaje);
-          break;
-        case 200:
-          setTipoTickets(data.tipoTickets);
-          break;
-        case 401:
-          sessionStorage.removeItem("token");
-          window.location.href = "/login";
-          break;
-        default:
-          break;
-      }
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        switch (data.status) {
+          case 500:
+            onOpen();
+            setVarianteModal("error");
+            console.error(data.mensaje);
+            break;
+          case 200:
+            setTipoTickets(data.tipoTickets);
+            break;
+          case 401:
+            sessionStorage.removeItem("token");
+            window.location.href = "/login";
+            break;
+          default:
+            break;
+        }
+      });
   }, [onOpen]);
 
-  function enviarDatos (ev) {
+  function enviarDatos(ev) {
     ev.preventDefault();
-    
-    fetch('http://localhost:8080/CrearTicket', {
+
+    fetch("http://localhost:8080/CrearTicket", {
       method: "POST",
       headers: {
-          "Authorization": "Bearer " + sessionStorage.getItem("token"),
-          "Content-Type": "application/json"
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-          "usuario_id": usuario.usuarioId,
-          "ubicacion": valorUbicacion,
-          "tipo_ticket_id" : parseInt(valorTipo.currentKey, 10),
-          "descripcion" : valorDescripcion
+        usuario_id: usuario.usuarioId,
+        ubicacion: valorUbicacion,
+        tipo_ticket_id: parseInt(valorTipo.currentKey, 10),
+        descripcion: valorDescripcion,
+      }),
+    })
+      .then((response) => {
+        return response.json();
       })
-  })
-  .then(response => {
-    return response.json();
-  })
-  .then(data => {
-    switch (data.status) {
-      case 500:
-        onOpen();
-        setVarianteModal("error");
-        console.error(data.mensaje);
-      break;
-      case 201:
-        TicketCreado();
-      break;
-      case 400:
-      case 401:
-        onOpen();
-        setVarianteModal("advertencia");
-        setMensajeModal(data.mensaje);
-      break;
-      default:
-      break;
-    }
-  });
-  };
+      .then((data) => {
+        switch (data.status) {
+          case 500:
+            onOpen();
+            setVarianteModal("error");
+            console.error(data.mensaje);
+            break;
+          case 201:
+            TicketCreado();
+            break;
+          case 400:
+          case 401:
+            onOpen();
+            setVarianteModal("advertencia");
+            setMensajeModal(data.mensaje);
+            break;
+          default:
+            break;
+        }
+      });
+  }
 
-  function TicketCreado () {
-    
-  };
+  function TicketCreado() {}
 
   useEffect(() => {
     ObtenerTipoTickets();
@@ -110,62 +104,80 @@ function Ticket () {
 
   useEffect(() => {
     setDescripcionVacia(verificaVacio(valorDescripcion));
-    setTipoVacia(valorTipo.size > 0 ? false: true);
+    setTipoVacia(!(valorTipo.size > 0));
   }, [valorDescripcion, valorTipo]);
-  
-  return(
+
+  return (
     <>
-    <Layout
-      usuario={usuario}
-      setUsuario={setUsuario}
-    >   <Form onSubmit={ev => enviarDatos(ev)}>
-        <ContenedorPrincipal>
+      <Layout usuario={usuario} setUsuario={setUsuario}>
+        {" "}
+        <Form onSubmit={(ev) => enviarDatos(ev)}>
+          <ContenedorPrincipal>
             <Titulo>Crear un ticket</Titulo>
             <ContenedorInputs>
-                {usuario ?
+              {usuario ? (
                 <>
-                <Input
-                  label='Usuario'
-                  isReadOnly
-                  defaultValue={usuario.nombre}
-                  isRequired
-                  variant="flat"
-                />
-                <Input
-                  label='Area'
-                  isReadOnly
-                  defaultValue={usuario.area}
-                  isRequired
-                  variant="flat"
-                />
+                  <Input
+                    label="Usuario"
+                    isReadOnly
+                    defaultValue={usuario.nombre}
+                    isRequired
+                    variant="flat"
+                  />
+                  <Input
+                    label="Area"
+                    isReadOnly
+                    defaultValue={usuario.area}
+                    isRequired
+                    variant="flat"
+                  />
                 </>
-                : null}
-                <Select label='Área de soporte' isRequired selectedKeys={valorTipo} onSelectionChange={setValorTipo} variant="flat">
-                  {tipoTickets && tipoTickets.map((item) => (
+              ) : null}
+              <Select
+                label="Área de soporte"
+                isRequired
+                selectedKeys={valorTipo}
+                onSelectionChange={setValorTipo}
+                variant="flat"
+              >
+                {tipoTickets &&
+                  tipoTickets.map((item) => (
                     <SelectItem key={item.id}>{item.nombre}</SelectItem>
                   ))}
-                </Select>
-                <Input
-                  label='Ubicación (opcional):'
-                  placeholder="Ej. Mesa de atención 5"
-                  onChange={(ev) => setValorUbicacion(ev.target.value)}
-                  variant="flat"
-                />
-                <ContenedorTextArea>
+              </Select>
+              <Input
+                label="Ubicación (opcional):"
+                placeholder="Ej. Mesa de atención 5"
+                onChange={(ev) => setValorUbicacion(ev.target.value)}
+                variant="flat"
+              />
+              <ContenedorTextArea>
                 <Textarea
-                  label='Descripción'
+                  label="Descripción"
                   isRequired
                   variant="flat"
                   onChange={(ev) => setValorDescripcion(ev.target.value)}
                 />
-                </ContenedorTextArea>
-                
+              </ContenedorTextArea>
             </ContenedorInputs>
-            <ContenedorBotones>              
-              <Button type='button' color='danger' variant='light' onPress={() => window.location.replace('/Inicio')}>Cancelar</Button>
-              <Button type='submit' color='primary' isDisabled={descripcionVacia || tipoVacia}>Solicitar soporte</Button>
+            <ContenedorBotones>
+              <Button
+                type="button"
+                color="danger"
+                variant="light"
+                onPress={() => window.location.replace("/Inicio")}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                color="primary"
+                isDisabled={descripcionVacia || tipoVacia}
+              >
+                Solicitar soporte
+              </Button>
             </ContenedorBotones>
-        </ContenedorPrincipal>
+          </ContenedorPrincipal>
         </Form>
       </Layout>
       <ModalComp
@@ -174,10 +186,10 @@ function Ticket () {
         variant={varianteModal}
         mensaje={mensajeModal}
       />
-      </>
-    );
-  };
-  
+    </>
+  );
+}
+
 export default Ticket;
 
 const Titulo = styled.h2`

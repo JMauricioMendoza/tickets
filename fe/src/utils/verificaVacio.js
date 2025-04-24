@@ -1,7 +1,7 @@
 const verificaVacio = (input) => {
-    if (input === '') return true;
+  if (input === "") return true;
 
-    return false;
-  };
-  
-  export default verificaVacio;
+  return false;
+};
+
+export default verificaVacio;

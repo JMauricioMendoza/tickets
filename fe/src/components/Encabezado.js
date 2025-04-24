@@ -1,11 +1,5 @@
-import {
-  useEffect,
-  useState,
-  useCallback
-} from 'react';
-import LogoIceo from '../assets/img/logoIceo.png';
-import ModalComp from './Modal';
-import { styled } from 'styled-components';
+import { useEffect, useState, useCallback } from "react";
+import { styled } from "styled-components";
 import { FaUserCircle } from "react-icons/fa";
 import {
   Dropdown,
@@ -13,41 +7,42 @@ import {
   DropdownMenu,
   DropdownItem,
   Button,
-  useDisclosure
+  useDisclosure,
 } from "@heroui/react";
+import ModalComp from "./Modal";
+import LogoIceo from "../assets/img/logoIceo.png";
 
 function Encabezado({ usuario, setUsuario }) {
-
-  const verificaSesion = useCallback (() =>  {
+  const verificaSesion = useCallback(() => {
     fetch("http://localhost:8080/VerificaSesion", {
       method: "GET",
       headers: {
-        "Authorization": "Bearer " + sessionStorage.getItem("token")
-      }
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
     })
-    .then(response => {
+      .then((response) => {
         return response.json();
-    })
-    .then(data => {
-      switch (data.status) {
-        case 500:
-          console.error(data.mensaje);
-        break;
-        case 200:
-          setUsuario({
-            "nombre" : data.nombre,
-            "usuarioId" : data.usuario_id,
-            "area" : data.area
-          })
-        break;
-        case 401:
-          sessionStorage.removeItem("token");
-          window.location.href = "/login";
-        break;
-        default:
-        break;
-      }
-    });
+      })
+      .then((data) => {
+        switch (data.status) {
+          case 500:
+            console.error(data.mensaje);
+            break;
+          case 200:
+            setUsuario({
+              nombre: data.nombre,
+              usuarioId: data.usuario_id,
+              area: data.area,
+            });
+            break;
+          case 401:
+            sessionStorage.removeItem("token");
+            window.location.href = "/login";
+            break;
+          default:
+            break;
+        }
+      });
   }, [setUsuario]);
 
   useEffect(() => {
@@ -58,72 +53,81 @@ function Encabezado({ usuario, setUsuario }) {
 
   return (
     <EncabezadoH>
-        <LogoIceoImg>
-            <img src={LogoIceo} alt="Logo ICEO"/>
-        </LogoIceoImg>
-        {usuario ? <DropdownComp usuario={usuario}/> : <Titulo>Plataforma de Gestión de Incidencias</Titulo>}
+      <LogoIceoImg>
+        <img src={LogoIceo} alt="Logo ICEO" />
+      </LogoIceoImg>
+      {usuario ? (
+        <DropdownComp usuario={usuario} />
+      ) : (
+        <Titulo>Plataforma de Gestión de Incidencias</Titulo>
+      )}
     </EncabezadoH>
   );
-};
+}
 
-function DropdownComp ({ usuario }) {  
-  const[mensajeModal, setMensajeModal] = useState('');
-  const[varianteModal, setVarianteModal] = useState('');
+function DropdownComp({ usuario }) {
+  const [mensajeModal, setMensajeModal] = useState("");
+  const [varianteModal, setVarianteModal] = useState("");
 
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  function CierraSesion () {
+  function CierraSesion() {
     fetch(`http://localhost:8080/CerrarSesion/${usuario.usuarioId}`, {
-      method: "DELETE"
+      method: "DELETE",
     })
-      .then(response => {
-        return response.json(); 
+      .then((response) => {
+        return response.json();
       })
-      .then(data => {
+      .then((data) => {
         switch (data.status) {
           case 500:
             onOpen();
             setVarianteModal("error");
             console.error(data.mensaje);
-          break;
+            break;
           case 200:
             sessionStorage.removeItem("token");
             window.location.href = "/login";
-          break;
+            break;
           case 400:
             onOpen();
             setVarianteModal("advertencia");
             setMensajeModal(data.mensaje);
-          break;
+            break;
           default:
-          break;
+            break;
         }
       });
-  };
+  }
 
   return (
     <>
-    <Dropdown>
-      <DropdownTrigger>
-        <Button variant="light" radius='full' size='lg'>
-          <Icon>
-            <FaUserCircle />
-          </Icon>
-          <Nombre>{usuario.nombre}</Nombre>
-        </Button>
-      </DropdownTrigger>
-      <DropdownMenu aria-label="Static Actions">
-        <DropdownItem key="delete" className="text-danger" color="danger" onPress={CierraSesion}>
-          Cerrar sesión
-        </DropdownItem>
-      </DropdownMenu>
-    </Dropdown>
-    <ModalComp
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      variant={varianteModal}
-      mensaje={mensajeModal}
-    />
+      <Dropdown>
+        <DropdownTrigger>
+          <Button variant="light" radius="full" size="lg">
+            <Icon>
+              <FaUserCircle />
+            </Icon>
+            <Nombre>{usuario.nombre}</Nombre>
+          </Button>
+        </DropdownTrigger>
+        <DropdownMenu aria-label="Static Actions">
+          <DropdownItem
+            key="delete"
+            className="text-danger"
+            color="danger"
+            onPress={CierraSesion}
+          >
+            Cerrar sesión
+          </DropdownItem>
+        </DropdownMenu>
+      </Dropdown>
+      <ModalComp
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        variant={varianteModal}
+        mensaje={mensajeModal}
+      />
     </>
   );
 }
@@ -142,11 +146,11 @@ const EncabezadoH = styled.header`
 
 const LogoIceoImg = styled.div`
   width: 250px;
-   
+
   img {
     object-fit: cover;
     width: 100%;
-  };
+  }
 `;
 
 const Titulo = styled.h1`

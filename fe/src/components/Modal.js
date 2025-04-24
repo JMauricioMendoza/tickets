@@ -5,20 +5,31 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Button
+  Button,
 } from "@heroui/react";
 import { MdError, MdWarning, MdCheckCircle } from "react-icons/md";
 
 function ModalComp({ isOpen, onOpenChange, variant, mensaje, titulo = "" }) {
-
   const getHeaderIcon = () => {
     switch (variant) {
       case "error":
-        return <IconoError><MdError /></IconoError>;
+        return (
+          <IconoError>
+            <MdError />
+          </IconoError>
+        );
       case "advertencia":
-        return <IconoAdvertencia><MdWarning /></IconoAdvertencia>;
+        return (
+          <IconoAdvertencia>
+            <MdWarning />
+          </IconoAdvertencia>
+        );
       case "correcto":
-        return <IconoCorrecto><MdCheckCircle /></IconoCorrecto>;
+        return (
+          <IconoCorrecto>
+            <MdCheckCircle />
+          </IconoCorrecto>
+        );
       default:
         return null;
     }
@@ -52,7 +63,9 @@ function ModalComp({ isOpen, onOpenChange, variant, mensaje, titulo = "" }) {
               <p>{variant === "error" ? "Error en el servidor." : mensaje}</p>
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onPress={onClose}>Aceptar</Button>
+              <Button color="primary" onPress={onClose}>
+                Aceptar
+              </Button>
             </ModalFooter>
           </>
         )}
@@ -68,17 +81,17 @@ const ContenedorEncabezado = styled.div`
 `;
 
 const IconoError = styled.span`
-  color: #F31260;
+  color: #f31260;
   font-size: 24px;
 `;
 
 const IconoAdvertencia = styled.span`
-  color: #F5A524;
+  color: #f5a524;
   font-size: 24px;
 `;
 
 const IconoCorrecto = styled.span`
-  color: #17C964;
+  color: #17c964;
   font-size: 24px;
 `;
 
