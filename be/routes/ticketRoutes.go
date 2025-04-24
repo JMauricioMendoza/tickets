@@ -129,7 +129,10 @@ func CrearTicket(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "ticket": ticket})
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  http.StatusCreated,
+		"mensaje": fmt.Sprintf("Su ticket ha sido creado exitosamente. Número de seguimiento: #%d", ticket.ID),
+	})
 }
 
 func ActualizarEstatusTicket(c *gin.Context) {
