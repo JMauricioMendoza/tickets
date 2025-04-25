@@ -39,7 +39,6 @@ function Login() {
           case 500:
             onOpen();
             setVarianteModal("error");
-            console.error(data.mensaje);
             break;
           case 200:
             sessionStorage.setItem("token", data.token);

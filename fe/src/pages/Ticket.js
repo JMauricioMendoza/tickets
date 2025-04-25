@@ -40,7 +40,6 @@ function Ticket() {
           case 500:
             onOpen();
             setVarianteModal("error");
-            console.error(data.mensaje);
             break;
           case 200:
             setTipoTickets(data.tipoTickets);
@@ -79,7 +78,6 @@ function Ticket() {
           case 500:
             onOpen();
             setVarianteModal("error");
-            console.error(data.mensaje);
             break;
           case 201:
             onOpen();

@@ -1,4 +1,4 @@
-const verificaDatos = (ev, setValor, tipoVerifica) => {
+function verificaDatos(ev, setValor, tipoVerifica) {
   let valor = ev.target.value;
 
   switch (tipoVerifica) {
@@ -10,6 +10,7 @@ const verificaDatos = (ev, setValor, tipoVerifica) => {
   }
 
   setValor(valor);
-};
+  return null;
+}
 
 export default verificaDatos;

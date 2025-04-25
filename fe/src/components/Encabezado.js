@@ -13,6 +13,11 @@ import ModalComp from "./Modal";
 import LogoIceo from "../assets/img/logoIceo.png";
 
 function Encabezado({ usuario, setUsuario }) {
+  const [mensajeModal, setMensajeModal] = useState("");
+  const [varianteModal, setVarianteModal] = useState("");
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const verificaSesion = useCallback(() => {
     fetch("http://localhost:8080/VerificaSesion", {
       method: "GET",
@@ -26,7 +31,8 @@ function Encabezado({ usuario, setUsuario }) {
       .then((data) => {
         switch (data.status) {
           case 500:
-            console.error(data.mensaje);
+            onOpen();
+            setVarianteModal("error");
             break;
           case 200:
             setUsuario({
@@ -57,7 +63,16 @@ function Encabezado({ usuario, setUsuario }) {
         <img src={LogoIceo} alt="Logo ICEO" />
       </LogoIceoImg>
       {usuario ? (
-        <DropdownComp usuario={usuario} />
+        <DropdownComp
+          usuario={usuario}
+          onOpen={onOpen}
+          setVarianteModal={setVarianteModal}
+          setMensajeModal={setMensajeModal}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          varianteModal={varianteModal}
+          mensajeModal={mensajeModal}
+        />
       ) : (
         <Titulo>Plataforma de Gestión de Incidencias</Titulo>
       )}
@@ -65,25 +80,26 @@ function Encabezado({ usuario, setUsuario }) {
   );
 }
 
-function DropdownComp({ usuario }) {
-  const [mensajeModal, setMensajeModal] = useState("");
-  const [varianteModal, setVarianteModal] = useState("");
-
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  function CierraSesion() {
+function DropdownComp({
+  usuario,
+  onOpen,
+  setVarianteModal,
+  setMensajeModal,
+  isOpen,
+  onOpenChange,
+  varianteModal,
+  mensajeModal,
+}) {
+  const CierraSesion = useCallback(() => {
     fetch(`http://localhost:8080/CerrarSesion/${usuario.usuarioId}`, {
       method: "DELETE",
     })
-      .then((response) => {
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((data) => {
         switch (data.status) {
           case 500:
             onOpen();
             setVarianteModal("error");
-            console.error(data.mensaje);
             break;
           case 200:
             sessionStorage.removeItem("token");
@@ -98,7 +114,7 @@ function DropdownComp({ usuario }) {
             break;
         }
       });
-  }
+  }, [usuario.usuarioId, onOpen]);
 
   return (
     <>

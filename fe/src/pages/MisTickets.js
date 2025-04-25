@@ -45,7 +45,6 @@ function MisTickets() {
           case 500:
             onOpen();
             setVarianteModal("error");
-            console.error(data.mensaje);
             break;
           case 200:
             setTickets(data.tickets);
@@ -125,6 +124,13 @@ function Alerta() {
 }
 
 function ListaTickets({ ticketsFiltrados }) {
+  const coloresPorEstatus = {
+    1: "warning",
+    2: "secondary",
+    3: "success",
+    4: "danger",
+  };
+
   return (
     <ContenedorTickets>
       {ticketsFiltrados &&
@@ -148,17 +154,7 @@ function ListaTickets({ ticketsFiltrados }) {
                 <Chip variant="flat">{item.tipo_ticket_nombre}</Chip>
                 <Chip
                   variant="flat"
-                  color={
-                    item.estatus_ticket_id === 1
-                      ? "warning"
-                      : item.estatus_ticket_id === 2
-                        ? "secondary"
-                        : item.estatus_ticket_id === 3
-                          ? "success"
-                          : item.estatus_ticket_id === 4
-                            ? "danger"
-                            : "default"
-                  }
+                  color={coloresPorEstatus[item.estatus_ticket_id] || "default"}
                 >
                   {item.estatus_ticket_nombre}
                 </Chip>

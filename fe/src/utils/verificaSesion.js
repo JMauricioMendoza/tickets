@@ -4,16 +4,13 @@ function verificaSesion() {
     headers: {
       Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
-  })
-    .then((response) => {
-      if (response.status === 401) {
-        sessionStorage.removeItem("token");
-        window.location.href = "/login";
-      }
-      return response.json();
-    })
-    .then((data) => console.log("Perfil:", data))
-    .catch((error) => console.error("Error:", error));
+  }).then((response) => {
+    if (response.status === 401) {
+      sessionStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+    return response.json();
+  });
 }
 
 export default verificaSesion;
