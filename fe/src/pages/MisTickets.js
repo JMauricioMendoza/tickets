@@ -48,7 +48,7 @@ function MisTickets() {
             break;
           case 200:
             setTickets(data.tickets);
-            setTicketsFiltrados(data.tickets);
+            setTicketsFiltrados(data.tickets ? data.tickets : []);
             break;
           case 401:
             sessionStorage.removeItem("token");
@@ -190,7 +190,7 @@ function Selects({ tickets, ticketsFiltrados, setTicketsFiltrados }) {
       filtrados = filtrados.filter((ticket) => ticket.tipo_ticket_id === tipo);
     }
 
-    setTicketsFiltrados(filtrados);
+    setTicketsFiltrados(filtrados || []);
   }, [
     valorSelectEstatusTicket,
     valorSelectTipoTicket,
