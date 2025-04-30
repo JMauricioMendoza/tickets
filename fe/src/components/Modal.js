@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import {
   Modal,
   ModalContent,
@@ -21,21 +20,21 @@ function ModalComp({
     switch (variant) {
       case "error":
         return (
-          <IconoError>
+          <span className="text-danger text-2xl">
             <MdError />
-          </IconoError>
+          </span>
         );
       case "advertencia":
         return (
-          <IconoAdvertencia>
+          <span className="text-warning text-2xl">
             <MdWarning />
-          </IconoAdvertencia>
+          </span>
         );
       case "correcto":
         return (
-          <IconoCorrecto>
+          <span className="text-success text-2xl">
             <MdCheckCircle />
-          </IconoCorrecto>
+          </span>
         );
       default:
         return null;
@@ -61,10 +60,10 @@ function ModalComp({
         {(onClose) => (
           <>
             <ModalHeader>
-              <ContenedorEncabezado>
+              <div className="flex items-center gap-6">
                 <p>{getTitulo()}</p>
                 {getHeaderIcon()}
-              </ContenedorEncabezado>
+              </div>
             </ModalHeader>
             <ModalBody>
               <p>{variant === "error" ? "Error en el servidor." : mensaje}</p>
@@ -86,26 +85,5 @@ function ModalComp({
     </Modal>
   );
 }
-
-const ContenedorEncabezado = styled.div`
-  display: flex;
-  gap: 24px;
-  align-items: center;
-`;
-
-const IconoError = styled.span`
-  color: #f31260;
-  font-size: 24px;
-`;
-
-const IconoAdvertencia = styled.span`
-  color: #f5a524;
-  font-size: 24px;
-`;
-
-const IconoCorrecto = styled.span`
-  color: #17c964;
-  font-size: 24px;
-`;
 
 export default ModalComp;
