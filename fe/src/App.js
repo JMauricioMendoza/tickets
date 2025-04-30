@@ -8,6 +8,7 @@ import { HeroUIProvider } from "@heroui/system";
 import Login from "./pages/Login";
 import MisTickets from "./pages/MisTickets";
 import Ticket from "./pages/Ticket";
+import Dashboard from "./pages/Dashboard";
 import RutaProtegida from "./utils/RutaProtegida";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route element={<RutaProtegida />}>
             <Route path="/mis-tickets" element={<MisTickets />} />
             <Route path="/ticket" element={<Ticket />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/login" />} />
