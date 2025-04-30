@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { styled } from "styled-components";
 import { FaUserCircle } from "react-icons/fa";
 import {
   Dropdown,
@@ -58,10 +57,10 @@ function Encabezado({ usuario, setUsuario }) {
   }, [verificaSesion]);
 
   return (
-    <EncabezadoH>
-      <LogoIceoImg>
-        <img src={LogoIceo} alt="Logo ICEO" />
-      </LogoIceoImg>
+    <header className="flex items-center justify-between absolute top-0 px-12 w-full h-20 font-bold">
+      <div className="w-60">
+        <img className="object-cover w-full" src={LogoIceo} alt="Logo ICEO" />
+      </div>
       {usuario ? (
         <DropdownComp
           usuario={usuario}
@@ -74,9 +73,11 @@ function Encabezado({ usuario, setUsuario }) {
           mensajeModal={mensajeModal}
         />
       ) : (
-        <Titulo>Plataforma de Gestión de Incidencias</Titulo>
+        <h1 className="text-2xl text-institucional">
+          Plataforma de Gestión de Incidencias
+        </h1>
       )}
-    </EncabezadoH>
+    </header>
   );
 }
 
@@ -121,10 +122,10 @@ function DropdownComp({
       <Dropdown>
         <DropdownTrigger>
           <Button variant="light" radius="full" size="lg">
-            <Icon>
+            <span className="text-4xl text-institucional">
               <FaUserCircle />
-            </Icon>
-            <Nombre>{usuario.nombre}</Nombre>
+            </span>
+            <p className="text-base text-black">{usuario.nombre}</p>
           </Button>
         </DropdownTrigger>
         <DropdownMenu aria-label="Static Actions">
@@ -147,41 +148,5 @@ function DropdownComp({
     </>
   );
 }
-
-const EncabezadoH = styled.header`
-  align-items: center;
-  display: flex;
-  font-weight: 700;
-  justify-content: space-between;
-  height: 90px;
-  padding: 0 50px;
-  position: absolute;
-  top: 0;
-  width: 100%;
-`;
-
-const LogoIceoImg = styled.div`
-  width: 250px;
-
-  img {
-    object-fit: cover;
-    width: 100%;
-  }
-`;
-
-const Titulo = styled.h1`
-  color: #9d2348;
-  font-size: 24px;
-`;
-
-const Icon = styled.span`
-  color: #9d2348;
-  font-size: 35px;
-`;
-
-const Nombre = styled.p`
-  color: #000000;
-  font-size: 16px;
-`;
 
 export default Encabezado;
