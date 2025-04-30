@@ -1,41 +1,16 @@
-import { styled, css } from "styled-components";
 import Encabezado from "./Encabezado";
 
 function Layout({ children, usuario, setUsuario }) {
   return (
-    <LayoutDiv>
-      <ContenedorPrincipal $usuario={usuario}>
+    <div className="flex items-start justify-center w-full min-h-screen bg-gray-200">
+      <div
+        className={`relative flex items-center justify-center ${usuario ? "pt-36 pb-12" : "min-h-[720px]"} w-[1080px] bg-white rounded-xl`}
+      >
         <Encabezado usuario={usuario} setUsuario={setUsuario} />
         {children}
-      </ContenedorPrincipal>
-    </LayoutDiv>
+      </div>
+    </div>
   );
 }
-
-const LayoutDiv = styled.div`
-  align-items: start;
-  background-color: #e5e7e9;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  width: 100%;
-`;
-
-const ContenedorPrincipal = styled.div`
-  align-items: center;
-  background-color: #fffffe;
-  border-radius: 12px;
-  display: flex;
-  justify-content: center;
-  padding: ${({ $usuario }) => ($usuario ? "150px 0 50px" : "0")};
-  position: relative;
-  width: 1080px;
-
-  ${({ $usuario }) =>
-    !$usuario &&
-    css`
-      min-height: 720px;
-    `}
-`;
 
 export default Layout;
