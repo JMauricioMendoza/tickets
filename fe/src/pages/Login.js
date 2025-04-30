@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Input, Button, useDisclosure, Form } from "@heroui/react";
-import { styled } from "styled-components";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import Layout from "../components/Layout";
 import ModalComp from "../components/Modal";
@@ -69,8 +68,8 @@ function Login() {
   return (
     <Layout>
       <Form onSubmit={(ev) => IniciarSesion(ev)}>
-        <ContenedorPrincipal>
-          <Titulo>Inicia sesión</Titulo>
+        <div className="flex items-center justify-center flex-col gap-7 w-72">
+          <h2 className="text-xl font-semibold">Inicia sesión</h2>
           <Input
             onChange={(ev) => verificaDatos(ev, setValorUsuario, 0)}
             value={valorUsuario}
@@ -89,9 +88,13 @@ function Login() {
             size="sm"
             isRequired
             endContent={
-              <BotonOjo type="button" onClick={() => setEsVisible(!esVisible)}>
+              <button
+                className="self-center text-gray-700 text-xl"
+                type="button"
+                onClick={() => setEsVisible(!esVisible)}
+              >
                 {esVisible ? <IoMdEyeOff /> : <IoMdEye />}
-              </BotonOjo>
+              </button>
             }
           />
           <Button
@@ -101,7 +104,7 @@ function Login() {
           >
             Entrar
           </Button>
-        </ContenedorPrincipal>
+        </div>
       </Form>
       <ModalComp
         isOpen={isOpen}
@@ -112,25 +115,5 @@ function Login() {
     </Layout>
   );
 }
-
-const ContenedorPrincipal = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 30px;
-  width: 300px;
-`;
-
-const Titulo = styled.h2`
-  font-size: 20px;
-  font-weight: 600;
-`;
-
-const BotonOjo = styled.button`
-  align-self: center;
-  color: #454545;
-  font-size: 20px;
-`;
 
 export default Login;
