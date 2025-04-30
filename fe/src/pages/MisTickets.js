@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { styled } from "styled-components";
 import {
   Alert,
   Button,
@@ -67,8 +66,10 @@ function MisTickets() {
   return (
     <>
       <Layout usuario={usuario} setUsuario={setUsuario}>
-        <ContenedorPrincipal>
-          <Titulo>Mis tickets</Titulo>
+        <div className="flex flex-col gap-9 w-[900px]">
+          <h2 className="text-institucional text-2xl font-semibold">
+            Mis tickets
+          </h2>
           <span>
             <Button
               className="font-semibold"
@@ -101,7 +102,7 @@ function MisTickets() {
           ) : (
             <Alerta />
           )}
-        </ContenedorPrincipal>
+        </div>
       </Layout>
       <ModalComp
         isOpen={isOpen}
@@ -132,25 +133,23 @@ function ListaTickets({ ticketsFiltrados }) {
   };
 
   return (
-    <ContenedorTickets>
+    <div className="flex flex-col gap-7">
       {ticketsFiltrados &&
         ticketsFiltrados.map((item) => (
           <Card key={item.id}>
             <CardHeader>
-              <ContenedorTitulos>
-                <NumeroTicket className="text-md">
-                  Ticket #{item.id}
-                </NumeroTicket>
+              <div className="flex justify-between pt-5 pr-5 pl-5 w-full">
+                <p className="text-medium font-semibold">Ticket #{item.id}</p>
                 <p>{item.creado_en.substring(0, 10)}</p>
-              </ContenedorTitulos>
+              </div>
             </CardHeader>
             <Divider />
             <CardBody>
-              <Descripcion>{item.descripcion}</Descripcion>
+              <p className="pt-5 pr-5 pl-5 text-base">{item.descripcion}</p>
             </CardBody>
             <Divider />
             <CardFooter>
-              <ContenedorChips>
+              <div className="flex justify-end gap-5 px-5 w-full">
                 <Chip variant="flat">{item.tipo_ticket_nombre}</Chip>
                 <Chip
                   variant="flat"
@@ -158,11 +157,11 @@ function ListaTickets({ ticketsFiltrados }) {
                 >
                   {item.estatus_ticket_nombre}
                 </Chip>
-              </ContenedorChips>
+              </div>
             </CardFooter>
           </Card>
         ))}
-    </ContenedorTickets>
+    </div>
   );
 }
 
@@ -216,8 +215,8 @@ function Selects({ tickets, ticketsFiltrados, setTicketsFiltrados }) {
     });
   }, [ticketsFiltrados]);
   return (
-    <ContenedorPrincipalSelects>
-      <ContenedorSelect>
+    <div className="flex gap-5">
+      <div className="w-72">
         <Select
           label="Área de soporte"
           variant="flat"
@@ -231,8 +230,8 @@ function Selects({ tickets, ticketsFiltrados, setTicketsFiltrados }) {
             </SelectItem>
           ))}
         </Select>
-      </ContenedorSelect>
-      <ContenedorSelect>
+      </div>
+      <div className="w-72">
         <Select
           label="Estatus del ticket"
           variant="flat"
@@ -246,62 +245,9 @@ function Selects({ tickets, ticketsFiltrados, setTicketsFiltrados }) {
             </SelectItem>
           ))}
         </Select>
-      </ContenedorSelect>
-    </ContenedorPrincipalSelects>
+      </div>
+    </div>
   );
 }
-
-const ContenedorPrincipal = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 35px;
-  width: 900px;
-`;
-
-const Titulo = styled.h2`
-  color: #9d2348;
-  font-size: 24px;
-  font-weight: 600;
-`;
-
-const ContenedorPrincipalSelects = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
-const ContenedorSelect = styled.div`
-  width: 290px;
-`;
-
-const ContenedorTickets = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-`;
-
-const ContenedorTitulos = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 20px 20px 0 20px;
-  width: 100%;
-`;
-
-const NumeroTicket = styled.p`
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-const Descripcion = styled.p`
-  font-size: 16px;
-  padding: 20px 20px 0 20px;
-`;
-
-const ContenedorChips = styled.div`
-  display: flex;
-  gap: 20px;
-  justify-content: end;
-  padding: 0 20px;
-  width: 100%;
-`;
 
 export default MisTickets;
