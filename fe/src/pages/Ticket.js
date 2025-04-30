@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { styled } from "styled-components";
 import {
   Input,
   Select,
@@ -108,11 +107,12 @@ function Ticket() {
   return (
     <>
       <Layout usuario={usuario} setUsuario={setUsuario}>
-        {" "}
         <Form onSubmit={(ev) => enviarDatos(ev)}>
-          <ContenedorPrincipal>
-            <Titulo>Crear un ticket</Titulo>
-            <ContenedorInputs>
+          <div className="flex flex-col gap-9 w-[900px]">
+            <h2 className="text-institucional text-2xl font-semibold">
+              Crear un ticket
+            </h2>
+            <div className="grid grid-cols-2 gap-x-9 gap-y-12">
               {usuario ? (
                 <>
                   <Input
@@ -149,16 +149,16 @@ function Ticket() {
                 onChange={(ev) => setValorUbicacion(ev.target.value)}
                 variant="flat"
               />
-              <ContenedorTextArea>
+              <div className="row-start-3 row-end-4 col-start-1 col-end-3">
                 <Textarea
                   label="Descripción"
                   isRequired
                   variant="flat"
                   onChange={(ev) => setValorDescripcion(ev.target.value)}
                 />
-              </ContenedorTextArea>
-            </ContenedorInputs>
-            <ContenedorBotones>
+              </div>
+            </div>
+            <div className="flex justify-between w-[900px]">
               <Button
                 type="button"
                 color="danger"
@@ -173,8 +173,8 @@ function Ticket() {
               >
                 Solicitar soporte
               </Button>
-            </ContenedorBotones>
-          </ContenedorPrincipal>
+            </div>
+          </div>
         </Form>
       </Layout>
       <ModalComp
@@ -189,33 +189,3 @@ function Ticket() {
 }
 
 export default Ticket;
-
-const Titulo = styled.h2`
-  color: #9d2348;
-  font-size: 24px;
-  font-weight: 600;
-`;
-
-const ContenedorPrincipal = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 35px;
-  width: 900px;
-`;
-
-const ContenedorInputs = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-column-gap: 35px;
-  grid-row-gap: 50px;
-`;
-
-const ContenedorTextArea = styled.div`
-  grid-area: 3 / 1 / 4 / 3;
-`;
-
-const ContenedorBotones = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 900px;
-`;
