@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Input, Button, useDisclosure, Form } from "@heroui/react";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import ModalComp from "../components/Modal";
 import verificaDatos from "../utils/verificaDatos";
@@ -16,6 +17,8 @@ function Login() {
   const [varianteModal, setVarianteModal] = useState("");
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const navigate = useNavigate();
 
   function IniciarSesion(ev) {
     ev.preventDefault();
@@ -41,7 +44,7 @@ function Login() {
             break;
           case 200:
             sessionStorage.setItem("token", data.token);
-            window.location.replace("/mis-tickets");
+            navigate("/mis-tickets");
             break;
           case 400:
           case 401:
@@ -61,8 +64,7 @@ function Login() {
   }, [valorUsuario, valorPasswd]);
 
   useEffect(() => {
-    if (sessionStorage.getItem("token"))
-      window.location.replace("/mis-tickets");
+    if (sessionStorage.getItem("token")) navigate("/mis-tickets");
   }, []);
 
   return (

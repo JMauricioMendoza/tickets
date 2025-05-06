@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Input,
   Select,
@@ -24,6 +25,8 @@ function Ticket() {
   const [descripcionVacia, setDescripcionVacia] = useState(true);
   const [tipoVacia, setTipoVacia] = useState(true);
 
+  const navigate = useNavigate();
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const ObtenerTipoTickets = useCallback(() => {
@@ -45,7 +48,7 @@ function Ticket() {
             break;
           case 401:
             sessionStorage.removeItem("token");
-            window.location.href = "/login";
+            navigate("/login");
             break;
           default:
             break;
@@ -162,7 +165,7 @@ function Ticket() {
               <Button
                 type="button"
                 color="danger"
-                onPress={() => window.location.replace("/mis-tickets")}
+                onPress={() => navigate("/mis-tickets")}
               >
                 Cancelar
               </Button>
@@ -182,7 +185,7 @@ function Ticket() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
-        onAccept={() => window.location.replace("/mis-tickets")}
+        onAccept={() => navigate("/mis-tickets")}
       />
     </>
   );

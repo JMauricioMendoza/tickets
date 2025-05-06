@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import {
   Dropdown,
@@ -16,6 +17,8 @@ function Encabezado({ usuario, setUsuario }) {
   const [varianteModal, setVarianteModal] = useState("");
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const navigate = useNavigate();
 
   const verificaSesion = useCallback(() => {
     fetch("http://localhost:8080/VerificaSesion", {
@@ -42,7 +45,7 @@ function Encabezado({ usuario, setUsuario }) {
             break;
           case 401:
             sessionStorage.removeItem("token");
-            window.location.href = "/login";
+            navigate("/login");
             break;
           default:
             break;
@@ -50,11 +53,13 @@ function Encabezado({ usuario, setUsuario }) {
       });
   }, [setUsuario]);
 
+  const location = useLocation();
+
   useEffect(() => {
-    if (window.location.pathname !== "/login") {
+    if (location.pathname !== "/login") {
       verificaSesion();
     }
-  }, [verificaSesion]);
+  }, [location.pathname, verificaSesion]);
 
   return (
     <header className="flex items-center justify-between absolute top-0 px-12 w-full h-20 font-bold">
@@ -71,6 +76,7 @@ function Encabezado({ usuario, setUsuario }) {
           onOpenChange={onOpenChange}
           varianteModal={varianteModal}
           mensajeModal={mensajeModal}
+          navigate={navigate}
         />
       ) : (
         <h1 className="text-2xl text-institucional">
@@ -90,6 +96,7 @@ function DropdownComp({
   onOpenChange,
   varianteModal,
   mensajeModal,
+  navigate,
 }) {
   const CierraSesion = useCallback(() => {
     fetch(`http://localhost:8080/CerrarSesion/${usuario.usuarioId}`, {
@@ -104,7 +111,7 @@ function DropdownComp({
             break;
           case 200:
             sessionStorage.removeItem("token");
-            window.location.href = "/login";
+            navigate("/login");
             break;
           case 400:
             onOpen();

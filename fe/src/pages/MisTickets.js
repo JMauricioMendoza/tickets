@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -23,6 +24,8 @@ function MisTickets() {
   const [ticketsFiltrados, setTicketsFiltrados] = useState([]);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const navigate = useNavigate();
 
   const ticketsPorUsuario = useCallback(() => {
     setTickets([]);
@@ -51,7 +54,7 @@ function MisTickets() {
             break;
           case 401:
             sessionStorage.removeItem("token");
-            window.location.href = "/login";
+            navigate("/login");
             break;
           default:
             break;
@@ -76,7 +79,7 @@ function MisTickets() {
               color="primary"
               variant="solid"
               startContent={<AiOutlinePlusCircle />}
-              onPress={() => window.location.replace("/Ticket")}
+              onPress={() => navigate("/ticket")}
             >
               Nuevo ticket
             </Button>
