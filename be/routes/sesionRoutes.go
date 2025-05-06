@@ -36,8 +36,8 @@ func IniciarSesion(c *gin.Context) {
 
 	passwordIngresada := usuario.Password
 
-	query := "SELECT id, password FROM usuario WHERE usuario = $1 AND estatus IS TRUE"
-	err = tx.QueryRow(query, usuario.Usuario).Scan(&usuario.ID, &usuario.Password)
+	query := "SELECT id, password, administrador FROM usuario WHERE usuario = $1 AND estatus IS TRUE"
+	err = tx.QueryRow(query, usuario.Usuario).Scan(&usuario.ID, &usuario.Password, &usuario.Administrador)
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "mensaje": "El usuario no existe o está inhabilitado"})
@@ -80,7 +80,7 @@ func IniciarSesion(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token, "administrador": usuario.Administrador})
 }
 
 func CerrarSesion(c *gin.Context) {
