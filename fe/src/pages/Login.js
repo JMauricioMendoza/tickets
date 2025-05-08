@@ -44,7 +44,8 @@ function Login() {
             break;
           case 200:
             sessionStorage.setItem("token", data.token);
-            navigate("/mis-tickets");
+            sessionStorage.setItem("admin", data.administrador);
+            navigate(data.administrador ? "/dashboard" : "/mis-tickets");
             break;
           case 400:
           case 401:
@@ -64,7 +65,10 @@ function Login() {
   }, [valorUsuario, valorPasswd]);
 
   useEffect(() => {
-    if (sessionStorage.getItem("token")) navigate("/mis-tickets");
+    if (sessionStorage.getItem("token")) {
+      const admin = sessionStorage.getItem("admin");
+      navigate(admin === "true" ? "/dashboard" : "/mis-tickets");
+    }
   }, []);
 
   return (

@@ -45,6 +45,7 @@ function Encabezado({ usuario, setUsuario }) {
             break;
           case 401:
             sessionStorage.removeItem("token");
+            sessionStorage.removeItem("admin");
             navigate("/login");
             break;
           default:
@@ -111,6 +112,7 @@ function DropdownComp({
             break;
           case 200:
             sessionStorage.removeItem("token");
+            sessionStorage.removeItem("admin");
             navigate("/login");
             break;
           case 400:

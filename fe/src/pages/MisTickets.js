@@ -54,6 +54,7 @@ function MisTickets() {
             break;
           case 401:
             sessionStorage.removeItem("token");
+            sessionStorage.removeItem("admin");
             navigate("/login");
             break;
           default:
