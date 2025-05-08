@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Card, CardHeader, CardBody, Divider, Link } from "@heroui/react";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Divider,
+  Link as HeroLink,
+} from "@heroui/react";
+import { Link as RouterLink } from "react-router-dom";
 import Layout from "../components/Layout";
 
 function Dashboard() {
@@ -17,21 +24,38 @@ function Dashboard() {
           <Divider />
           <CardBody>
             <div className="flex flex-col gap-2 pb-2 pl-5">
-              <Link className="text-base font-medium" href="/tickets-todos">
+              <HeroLink
+                as={RouterLink}
+                to="/tickets-todos"
+                className="font-medium"
+              >
                 Usuarios
-              </Link>
-              <Link className="text-base font-medium" href="/mis-tickets">
+              </HeroLink>
+              <HeroLink
+                as={RouterLink}
+                to="/mis-tickets"
+                className="font-medium"
+              >
                 Departamentos
-              </Link>
-              <Link className="text-base font-medium" href="/mis-tickets">
+              </HeroLink>
+              <HeroLink
+                as={RouterLink}
+                to="/mis-tickets"
+                className="font-medium"
+              >
                 Estatus de tickets
-              </Link>
-              <Link className="text-base font-medium" href="/mis-tickets">
+              </HeroLink>
+              <HeroLink
+                as={RouterLink}
+                to="/mis-tickets"
+                className="font-medium"
+              >
                 Áreas de soporte
-              </Link>
+              </HeroLink>
             </div>
           </CardBody>
         </Card>
+
         <Card>
           <CardHeader>
             <h2 className="pt-2 pl-5 text-institucional text-lg font-semibold">
@@ -41,12 +65,20 @@ function Dashboard() {
           <Divider />
           <CardBody>
             <div className="flex flex-col gap-2 pb-2 pl-5">
-              <Link className="text-base font-medium" href="/tickets-todos">
+              <HeroLink
+                as={RouterLink}
+                to="/tickets-todos"
+                className="font-medium"
+              >
                 Todos los tickets
-              </Link>
-              <Link className="text-base font-medium" href="/mis-tickets">
+              </HeroLink>
+              <HeroLink
+                as={RouterLink}
+                to="/mis-tickets"
+                className="font-medium"
+              >
                 Mis tickets
-              </Link>
+              </HeroLink>
             </div>
           </CardBody>
         </Card>
