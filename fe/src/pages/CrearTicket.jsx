@@ -13,7 +13,7 @@ import Layout from "../components/Layout";
 import ModalComp from "../components/Modal";
 import verificaVacio from "../utils/verificaVacio";
 
-function Ticket() {
+function CrearTicket() {
   const [usuario, setUsuario] = useState(null);
   const [tipoTickets, setTipoTickets] = useState(null);
   const [mensajeModal, setMensajeModal] = useState("");
@@ -192,4 +192,4 @@ function Ticket() {
   );
 }
 
-export default Ticket;
+export default CrearTicket;
