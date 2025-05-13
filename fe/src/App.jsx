@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import { HeroUIProvider } from "@heroui/system";
 import Login from "./pages/Login";
-import MisTickets from "./pages/MisTickets";
 import CrearTicket from "./pages/CrearTicket";
 import Dashboard from "./pages/Dashboard";
 import RutaProtegida from "./utils/RutaProtegida";
@@ -16,15 +15,14 @@ function App() {
     <HeroUIProvider>
       <Router>
         <Routes>
+          <Route path="/crear-ticket" element={<CrearTicket />} />
           <Route path="/login" element={<Login />} />
 
           <Route element={<RutaProtegida />}>
-            <Route path="/mis-tickets" element={<MisTickets />} />
-            <Route path="/crear-ticket" element={<CrearTicket />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="*" element={<Navigate to="/crear-ticket" />} />
         </Routes>
       </Router>
     </HeroUIProvider>

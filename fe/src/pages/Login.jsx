@@ -45,7 +45,7 @@ function Login() {
           case 200:
             sessionStorage.setItem("token", data.token);
             sessionStorage.setItem("admin", data.administrador);
-            navigate(data.administrador ? "/dashboard" : "/mis-tickets");
+            navigate("/dashboard");
             break;
           case 400:
           case 401:
@@ -66,8 +66,7 @@ function Login() {
 
   useEffect(() => {
     if (sessionStorage.getItem("token")) {
-      const admin = sessionStorage.getItem("admin");
-      navigate(admin === "true" ? "/dashboard" : "/mis-tickets");
+      navigate("/dashboard");
     }
   }, []);
 
@@ -75,7 +74,9 @@ function Login() {
     <Layout>
       <Form onSubmit={(ev) => IniciarSesion(ev)}>
         <div className="flex items-center justify-center flex-col gap-7 w-72">
-          <h2 className="text-xl font-semibold">Inicia sesión</h2>
+          <h2 className="text-xl text-center font-semibold">
+            Inicia sesión como usuario administrador
+          </h2>
           <Input
             onChange={(ev) => verificaDatos(ev, setValorUsuario, 0)}
             value={valorUsuario}

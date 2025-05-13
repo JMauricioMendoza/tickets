@@ -20,6 +20,8 @@ function Encabezado({ usuario, setUsuario }) {
 
   const navigate = useNavigate();
 
+  const location = useLocation();
+
   const verificaSesion = useCallback(() => {
     fetch("http://localhost:8080/VerificaSesion", {
       method: "GET",
@@ -40,13 +42,13 @@ function Encabezado({ usuario, setUsuario }) {
             setUsuario({
               nombre: data.nombre,
               usuarioId: data.usuario_id,
-              area: data.area,
             });
             break;
           case 401:
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("admin");
-            navigate("/login");
+
+            if (location.pathname !== "/crear-ticket") navigate("/login");
             break;
           default:
             break;
@@ -54,12 +56,8 @@ function Encabezado({ usuario, setUsuario }) {
       });
   }, [setUsuario]);
 
-  const location = useLocation();
-
   useEffect(() => {
-    if (location.pathname !== "/login") {
-      verificaSesion();
-    }
+    if (location.pathname !== "/login") verificaSesion();
   }, [location.pathname, verificaSesion]);
 
   return (
@@ -80,9 +78,22 @@ function Encabezado({ usuario, setUsuario }) {
           navigate={navigate}
         />
       ) : (
-        <h1 className="text-2xl text-institucional">
-          Plataforma de Gestión de Incidencias
-        </h1>
+        <div className="flex gap-2 items-center">
+          <h1 className="text-2xl text-institucional">
+            Plataforma de Gestión de Incidencias
+          </h1>
+          {location.pathname !== "/login" ? (
+            <span>
+              <Button
+                variant="light"
+                className="text-9xl"
+                onPress={() => navigate("/login")}
+              >
+                <FaUserCircle />
+              </Button>
+            </span>
+          ) : null}
+        </div>
       )}
     </header>
   );
