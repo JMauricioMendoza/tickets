@@ -107,15 +107,15 @@ func CrearTicket(c *gin.Context) {
 		}
 	}()
 
-	err = tx.QueryRow(query, ticket.UsuarioID, ticket.Ubicacion, ticket.TipoTicketID, ticket.Descripcion).Scan(&ticket.ID, &ticket.CreadoEn)
 	query := "INSERT INTO ticket (tipo_ticket_id, descripcion, creado_por, area_id) VALUES ($1, $2, $3, $4) RETURNING id, creado_en"
+	err = tx.QueryRow(query, ticket.TipoTicketID, ticket.Descripcion, ticket.CreadoPor, ticket.AreaID).Scan(&ticket.ID, &ticket.CreadoEn)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
 	}
 
-	_, err = tx.Exec(queryLog, ticket.ID, ticket.UsuarioID)
 	queryLog := "INSERT INTO logs_ticket (ticket_id, accion) VALUES ($1, 'Ticket creado')"
+	_, err = tx.Exec(queryLog, ticket.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
