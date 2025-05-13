@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Input,
   Select,
@@ -14,27 +13,28 @@ import ModalComp from "../components/Modal";
 import verificaVacio from "../utils/verificaVacio";
 
 function CrearTicket() {
-  const [usuario, setUsuario] = useState(null);
   const [tipoTickets, setTipoTickets] = useState(null);
+  const [areas, setTipoAreas] = useState(null);
   const [mensajeModal, setMensajeModal] = useState("");
   const [varianteModal, setVarianteModal] = useState("");
-  const [valorUbicacion, setValorUbicacion] = useState("");
+
+  const [valorNombre, setValorNombre] = useState("");
   const [valorDescripcion, setValorDescripcion] = useState("");
   const [valorTipo, setValorTipo] = useState(new Set([]));
+  const [valorArea, setValorArea] = useState(new Set([]));
 
+  const [nombreVacia, setNombreVacia] = useState(true);
   const [descripcionVacia, setDescripcionVacia] = useState(true);
   const [tipoVacia, setTipoVacia] = useState(true);
+  const [areaVacia, setAreaVacia] = useState(true);
 
-  const navigate = useNavigate();
+  const [usuario, setUsuario] = useState(null);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const ObtenerTipoTickets = useCallback(() => {
     fetch("http://localhost:8080/ObtenerTipoTicketsActivos", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
     })
       .then((response) => response.json())
       .then((data) => {
@@ -46,10 +46,25 @@ function CrearTicket() {
           case 200:
             setTipoTickets(data.tipoTickets);
             break;
-          case 401:
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("admin");
-            navigate("/login");
+          default:
+            break;
+        }
+      });
+  }, [onOpen]);
+
+  const ObtenerAreas = useCallback(() => {
+    fetch("http://localhost:8080/ObtenerAreaActivos", {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        switch (data.status) {
+          case 500:
+            onOpen();
+            setVarianteModal("error");
+            break;
+          case 200:
+            setTipoAreas(data.areas);
             break;
           default:
             break;
@@ -63,12 +78,11 @@ function CrearTicket() {
     fetch("http://localhost:8080/CrearTicket", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        usuario_id: usuario.usuarioId,
-        ubicacion: valorUbicacion,
+        creado_por: valorNombre,
+        area_id: parseInt(valorArea.currentKey, 10),
         tipo_ticket_id: parseInt(valorTipo.currentKey, 10),
         descripcion: valorDescripcion,
       }),
@@ -88,7 +102,6 @@ function CrearTicket() {
             setMensajeModal(data.mensaje);
             break;
           case 400:
-          case 401:
             onOpen();
             setVarianteModal("advertencia");
             setMensajeModal(data.mensaje);
@@ -99,14 +112,24 @@ function CrearTicket() {
       });
   }
 
-  useEffect(() => {
-    ObtenerTipoTickets();
-  }, [ObtenerTipoTickets]);
+  const limpiarInputs = () => {
+    setValorNombre("");
+    setValorDescripcion("");
+    setValorArea(new Set([]));
+    setValorTipo(new Set([]));
+  };
 
   useEffect(() => {
+    ObtenerTipoTickets();
+    ObtenerAreas();
+  }, [ObtenerTipoTickets, ObtenerAreas]);
+
+  useEffect(() => {
+    setNombreVacia(verificaVacio(valorNombre));
     setDescripcionVacia(verificaVacio(valorDescripcion));
     setTipoVacia(!(valorTipo.size > 0));
-  }, [valorDescripcion, valorTipo]);
+    setAreaVacia(!(valorArea.size > 0));
+  }, [valorDescripcion, valorTipo, valorArea, valorNombre]);
 
   return (
     <>
@@ -117,26 +140,28 @@ function CrearTicket() {
               Crear un ticket
             </h2>
             <div className="grid grid-cols-2 gap-x-9 gap-y-12">
-              {usuario ? (
-                <>
-                  <Input
-                    label="Usuario"
-                    isReadOnly
-                    defaultValue={usuario.nombre}
-                    isRequired
-                    variant="flat"
-                  />
-                  <Input
-                    label="Area"
-                    isReadOnly
-                    defaultValue={usuario.area}
-                    isRequired
-                    variant="flat"
-                  />
-                </>
-              ) : null}
+              <Input
+                label="Nombre de quien reporta"
+                placeholder="Escribe tu nombre completo"
+                isRequired
+                variant="flat"
+                onChange={(ev) => setValorNombre(ev.target.value)}
+                value={valorNombre}
+              />
               <Select
-                label="Área de soporte"
+                label="Área de adscripción"
+                isRequired
+                selectedKeys={valorArea}
+                onSelectionChange={setValorArea}
+                variant="flat"
+              >
+                {areas &&
+                  areas.map((item) => (
+                    <SelectItem key={item.id}>{item.nombre}</SelectItem>
+                  ))}
+              </Select>
+              <Select
+                label="Área de soporte solicitada"
                 isRequired
                 selectedKeys={valorTipo}
                 onSelectionChange={setValorTipo}
@@ -147,33 +172,23 @@ function CrearTicket() {
                     <SelectItem key={item.id}>{item.nombre}</SelectItem>
                   ))}
               </Select>
-              <Input
-                label="Ubicación (opcional):"
-                placeholder="Ej. Mesa de atención 5"
-                onChange={(ev) => setValorUbicacion(ev.target.value)}
-                variant="flat"
-              />
               <div className="row-start-3 row-end-4 col-start-1 col-end-3">
                 <Textarea
-                  label="Descripción"
+                  label="Descripción del problema"
                   isRequired
                   variant="flat"
                   onChange={(ev) => setValorDescripcion(ev.target.value)}
+                  value={valorDescripcion}
                 />
               </div>
             </div>
-            <div className="flex justify-between w-[900px]">
-              <Button
-                type="button"
-                color="danger"
-                onPress={() => navigate("/mis-tickets")}
-              >
-                Cancelar
-              </Button>
+            <div className="flex justify-end w-[900px]">
               <Button
                 type="submit"
                 color="primary"
-                isDisabled={descripcionVacia || tipoVacia}
+                isDisabled={
+                  descripcionVacia || tipoVacia || areaVacia || nombreVacia
+                }
               >
                 Solicitar soporte
               </Button>
@@ -186,7 +201,7 @@ function CrearTicket() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
-        onAccept={() => navigate("/mis-tickets")}
+        onAccept={limpiarInputs}
       />
     </>
   );
