@@ -95,6 +95,12 @@ function Encabezado({ usuario, setUsuario }) {
           ) : null}
         </div>
       )}
+      <ModalComp
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        variant={varianteModal}
+        mensaje={mensajeModal}
+      />
     </header>
   );
 }
@@ -104,10 +110,6 @@ function DropdownComp({
   onOpen,
   setVarianteModal,
   setMensajeModal,
-  isOpen,
-  onOpenChange,
-  varianteModal,
-  mensajeModal,
   navigate,
 }) {
   const CierraSesion = useCallback(() => {
@@ -138,34 +140,26 @@ function DropdownComp({
   }, [usuario.usuarioId, onOpen]);
 
   return (
-    <>
-      <Dropdown>
-        <DropdownTrigger>
-          <Button variant="light" radius="full" size="lg">
-            <span className="text-4xl text-institucional">
-              <FaUserCircle />
-            </span>
-            <p className="text-base text-black">{usuario.nombre}</p>
-          </Button>
-        </DropdownTrigger>
-        <DropdownMenu aria-label="Static Actions">
-          <DropdownItem
-            key="delete"
-            className="text-danger"
-            color="danger"
-            onPress={CierraSesion}
-          >
-            Cerrar sesión
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
-      <ModalComp
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        variant={varianteModal}
-        mensaje={mensajeModal}
-      />
-    </>
+    <Dropdown>
+      <DropdownTrigger>
+        <Button variant="light" radius="full" size="lg">
+          <span className="text-4xl text-institucional">
+            <FaUserCircle />
+          </span>
+          <p className="text-base text-black">{usuario.nombre}</p>
+        </Button>
+      </DropdownTrigger>
+      <DropdownMenu aria-label="Static Actions">
+        <DropdownItem
+          key="delete"
+          className="text-danger"
+          color="danger"
+          onPress={CierraSesion}
+        >
+          Cerrar sesión
+        </DropdownItem>
+      </DropdownMenu>
+    </Dropdown>
   );
 }
 
