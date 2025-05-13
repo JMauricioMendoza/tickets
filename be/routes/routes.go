@@ -24,6 +24,15 @@ func SetupRouter() *gin.Engine {
 	r.POST("/IniciarSesion", IniciarSesion)
 	r.DELETE("/CerrarSesion/:usuario_id", CerrarSesion)
 
+	//Ticket
+	r.POST("/CrearTicket", CrearTicket)
+
+	// TipoTickets
+	r.GET("/ObtenerTipoTicketsActivos", ObtenerTipoTicketsActivos)
+
+	// Area
+	r.GET("/ObtenerAreaActivos", ObtenerAreaActivos)
+
 	auth := r.Group("/")
 	auth.Use(middleware.AutenticacionMiddleware())
 	{
@@ -31,7 +40,6 @@ func SetupRouter() *gin.Engine {
 		auth.GET("/ObtenerTickets", middleware.AdministradorMiddleware(), ObtenerTickets)
 		auth.GET("/ObtenerTicketPorID/:id", middleware.AdministradorMiddleware(), ObtenerTicketPorID)
 		auth.GET("/ObtenerTicketsPorUsuario/:usuario_id", ObtenerTicketsPorUsuario)
-		auth.POST("/CrearTicket", CrearTicket)
 		auth.PATCH("/ActualizarEstatusTicket/:usuario_id", middleware.AdministradorMiddleware(), ActualizarEstatusTicket)
 
 		// Usuario
@@ -41,9 +49,6 @@ func SetupRouter() *gin.Engine {
 
 		// Sesion
 		auth.GET("/VerificaSesion", VerificaSesion)
-
-		// TipoTickets
-		auth.GET("/ObtenerTipoTicketsActivos", ObtenerTipoTicketsActivos)
 	}
 
 	return r

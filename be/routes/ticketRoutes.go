@@ -79,10 +79,8 @@ func ObtenerTicketsPorUsuario(c *gin.Context) {
 
 func ObtenerTicketPorID(c *gin.Context) {
 	id := c.Param("id")
-	row := database.DB.QueryRow("SELECT id, usuario_id, ubicacion, tipo_ticket_id, descripcion, estatus_ticket_id, creado_en FROM ticket WHERE id = $1", id)
 
 	var ticket models.Ticket
-	if err := row.Scan(&ticket.ID, &ticket.UsuarioID, &ticket.Ubicacion, &ticket.TipoTicketID, &ticket.Descripcion, &ticket.EstatusTicketID, &ticket.CreadoEn); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Ticket no encontrado"})
 		return
 	}
@@ -109,15 +107,15 @@ func CrearTicket(c *gin.Context) {
 		}
 	}()
 
-	query := "INSERT INTO ticket (usuario_id, ubicacion, tipo_ticket_id, descripcion) VALUES ($1, $2, $3, $4) RETURNING id, creado_en"
 	err = tx.QueryRow(query, ticket.UsuarioID, ticket.Ubicacion, ticket.TipoTicketID, ticket.Descripcion).Scan(&ticket.ID, &ticket.CreadoEn)
+	query := "INSERT INTO ticket (tipo_ticket_id, descripcion, creado_por, area_id) VALUES ($1, $2, $3, $4) RETURNING id, creado_en"
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
 	}
 
-	queryLog := "INSERT INTO logs_ticket (ticket_id, usuario_id, accion) VALUES ($1, $2, 'Ticket creado')"
 	_, err = tx.Exec(queryLog, ticket.ID, ticket.UsuarioID)
+	queryLog := "INSERT INTO logs_ticket (ticket_id, accion) VALUES ($1, 'Ticket creado')"
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
