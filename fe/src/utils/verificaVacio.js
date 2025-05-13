@@ -1,6 +1,5 @@
 const verificaVacio = (input) => {
-  if (input === "") return true;
-
+  if (input.trim() === "") return true;
   return false;
 };
 
