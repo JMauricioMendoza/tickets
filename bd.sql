@@ -168,13 +168,13 @@ CREATE TABLE "public"."sesion" (
 DROP TABLE IF EXISTS "public"."ticket";
 CREATE TABLE "public"."ticket" (
   "id" int8 NOT NULL DEFAULT nextval('ticket_id_seq'::regclass),
-  "usuario_id" int8 NOT NULL,
-  "ubicacion" varchar(100) COLLATE "pg_catalog"."default",
   "tipo_ticket_id" int8 NOT NULL,
   "descripcion" text COLLATE "pg_catalog"."default" NOT NULL,
   "estatus_ticket_id" int8 NOT NULL DEFAULT 1,
   "creado_en" timestamp(0) NOT NULL DEFAULT now(),
-  "actualizado_en" timestamp(0) NOT NULL DEFAULT now()
+  "actualizado_en" timestamp(0) NOT NULL DEFAULT now(),
+  "creado_por" varchar(150) COLLATE "pg_catalog"."default",
+  "area_id" int4
 )
 ;
 
@@ -200,7 +200,6 @@ CREATE TABLE "public"."usuario" (
   "nombre" varchar(255) COLLATE "pg_catalog"."default",
   "password" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "usuario" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
-  "area_id" int8 NOT NULL,
   "administrador" bool NOT NULL DEFAULT false,
   "estatus" bool NOT NULL DEFAULT true,
   "creado_en" timestamp(0) NOT NULL DEFAULT now(),
@@ -334,11 +333,9 @@ ALTER TABLE "public"."sesion" ADD CONSTRAINT "sesion_usuario_id_fkey" FOREIGN KE
 -- ----------------------------
 -- Foreign Keys structure for table ticket
 -- ----------------------------
+ALTER TABLE "public"."ticket" ADD CONSTRAINT "ticket_area_id_fkey" FOREIGN KEY ("area_id") REFERENCES "public"."area" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE "public"."ticket" ADD CONSTRAINT "ticket_estatus_ticket_id_fkey" FOREIGN KEY ("estatus_ticket_id") REFERENCES "public"."estatus_ticket" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE "public"."ticket" ADD CONSTRAINT "ticket_tipo_ticket_id_fkey" FOREIGN KEY ("tipo_ticket_id") REFERENCES "public"."tipo_ticket" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
-ALTER TABLE "public"."ticket" ADD CONSTRAINT "ticket_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- ----------------------------
--- Foreign Keys structure for table usuario
 -- ----------------------------
-ALTER TABLE "public"."usuario" ADD CONSTRAINT "usuario_area_id_fkey" FOREIGN KEY ("area_id") REFERENCES "public"."area" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
