@@ -155,16 +155,15 @@ func VerificaSesion(c *gin.Context) {
 		return
 	}
 
-	var nombre, areaNombre string
+	var nombre string
 	err := database.DB.QueryRow(`
-		SELECT usuario.nombre, area.nombre 
-		FROM usuario 
-		INNER JOIN area ON area.id = usuario.area_id 
-		WHERE usuario.id = $1`, id).Scan(&nombre, &areaNombre)
+		SELECT usuario.nombre
+		FROM usuario
+		WHERE usuario.id = $1`, id).Scan(&nombre)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "usuario_id": id, "nombre": nombre, "area": areaNombre})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "usuario_id": id, "nombre": nombre})
 }
