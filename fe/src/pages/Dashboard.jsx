@@ -33,21 +33,21 @@ function Dashboard() {
               </HeroLink>
               <HeroLink
                 as={RouterLink}
-                to="/mis-tickets"
+                to="/crear-ticket"
                 className="font-medium"
               >
                 Departamentos
               </HeroLink>
               <HeroLink
                 as={RouterLink}
-                to="/mis-tickets"
+                to="/crear-ticket"
                 className="font-medium"
               >
                 Estatus de tickets
               </HeroLink>
               <HeroLink
                 as={RouterLink}
-                to="/mis-tickets"
+                to="/crear-ticket"
                 className="font-medium"
               >
                 Áreas de soporte
@@ -67,17 +67,17 @@ function Dashboard() {
             <div className="flex flex-col gap-2 pb-2 pl-5">
               <HeroLink
                 as={RouterLink}
-                to="/tickets-todos"
+                to="/crear-ticket"
                 className="font-medium"
               >
-                Todos los tickets
+                Crear un ticket
               </HeroLink>
               <HeroLink
                 as={RouterLink}
-                to="/mis-tickets"
+                to="/tickets-todos"
                 className="font-medium"
               >
-                Mis tickets
+                Ver tickets
               </HeroLink>
             </div>
           </CardBody>
