@@ -8,6 +8,7 @@ import { HeroUIProvider } from "@heroui/system";
 import Login from "./pages/Login";
 import CrearTicket from "./pages/CrearTicket";
 import Dashboard from "./pages/Dashboard";
+import TicketsTodos from "./pages/TicketsTodos";
 import RutaProtegida from "./utils/RutaProtegida";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
 
           <Route element={<RutaProtegida />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tickets-todos" element={<TicketsTodos />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/crear-ticket" />} />

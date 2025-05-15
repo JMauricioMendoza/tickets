@@ -2,7 +2,7 @@ function verificaDatos(ev, setValor, tipoVerifica) {
   let valor = ev.target.value;
 
   switch (tipoVerifica) {
-    case 0: // Sin espacios
+    case 0:
       valor = valor.replace(/\s/g, "");
       break;
     default:
