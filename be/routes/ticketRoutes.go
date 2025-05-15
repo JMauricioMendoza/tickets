@@ -5,33 +5,91 @@ import (
 	"backgo/models"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 func ObtenerTickets(c *gin.Context) {
-	rows, err := database.DB.Query("SELECT id, usuario_id, tipo_ticket_id, estatus_ticket_id, creado_en FROM ticket")
+	usuarioID, existe := c.Get("usuario_id")
+	if !existe {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "mensaje": "Usuario no autenticado"})
+		return
+	}
+
+	id, ok := usuarioID.(int)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": "Error de tipo de dato"})
+		return
+	}
+
+	rowsTipoTicket, err := database.DB.Query("SELECT tipo_ticket_id FROM usuario_tipo_ticket WHERE estatus IS TRUE AND usuario_id = $1", id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+		return
+	}
+	defer rowsTipoTicket.Close()
+	var tipoTicketIDs []int
+	for rowsTipoTicket.Next() {
+		var tipoTicketID int
+		err := rowsTipoTicket.Scan(&tipoTicketID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+			return
+		}
+		tipoTicketIDs = append(tipoTicketIDs, tipoTicketID)
+	}
+	placeholders := []string{}
+	args := []interface{}{}
+	for i, id := range tipoTicketIDs {
+		placeholders = append(placeholders, fmt.Sprintf("$%d", i+1))
+		args = append(args, id)
+	}
+
+	query := fmt.Sprintf(`
+		SELECT
+			t.id,
+			t.descripcion,
+			t.tipo_ticket_id,
+			tt.nombre,
+			t.estatus_ticket_id,
+			et.nombre,
+			t.creado_en,
+			t.creado_por,
+			a.nombre
+		FROM 
+			ticket t
+			INNER JOIN tipo_ticket tt ON tt.id = t.tipo_ticket_id
+			INNER JOIN estatus_ticket et ON et.id = t.estatus_ticket_id
+			INNER JOIN area a ON a.id = t.area_id
+		WHERE
+			t.tipo_ticket_id IN (%s)
+		ORDER BY
+			t.creado_en DESC
+	`, strings.Join(placeholders, ","))
+	rows, err := database.DB.Query(query, args...)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
 	}
 	defer rows.Close()
+
 	var tickets []models.Ticket
 	for rows.Next() {
 		var ticket models.Ticket
-		if err := rows.Scan(&ticket.ID, &ticket.UsuarioID, &ticket.TipoTicketID, &ticket.EstatusTicketID, &ticket.CreadoEn); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if err := rows.Scan(&ticket.ID, &ticket.Descripcion, &ticket.TipoTicketID, &ticket.TipoTicketNombre, &ticket.EstatusTicketID, &ticket.EstatusTicketNombre, &ticket.CreadoEn, &ticket.CreadoPor, &ticket.AreaNombre); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 			return
 		}
 		tickets = append(tickets, ticket)
 	}
 
 	if err = rows.Err(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error en la consulta"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, tickets)
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "tickets": tickets})
 }
 
 func ObtenerTicketsPorUsuario(c *gin.Context) {
@@ -79,8 +137,10 @@ func ObtenerTicketsPorUsuario(c *gin.Context) {
 
 func ObtenerTicketPorID(c *gin.Context) {
 	id := c.Param("id")
+	row := database.DB.QueryRow("SELECT id, tipo_ticket_id, descripcion, estatus_ticket_id, creado_en FROM ticket WHERE id = $1", id)
 
 	var ticket models.Ticket
+	if err := row.Scan(&ticket.ID, &ticket.TipoTicketID, &ticket.Descripcion, &ticket.EstatusTicketID, &ticket.CreadoEn); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Ticket no encontrado"})
 		return
 	}
