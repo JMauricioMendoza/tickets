@@ -208,6 +208,17 @@ CREATE TABLE "public"."usuario" (
 ;
 
 -- ----------------------------
+-- Table structure for usuario_tipo_ticket
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."usuario_tipo_ticket";
+CREATE TABLE "public"."usuario_tipo_ticket" (
+  "usuario_id" int4 NOT NULL,
+  "tipo_ticket_id" int4 NOT NULL,
+  "estatus" bool NOT NULL DEFAULT true
+)
+;
+
+-- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."area_id_seq"
@@ -309,6 +320,11 @@ ALTER TABLE "public"."usuario" ADD CONSTRAINT "usuario_unique" UNIQUE ("usuario"
 ALTER TABLE "public"."usuario" ADD CONSTRAINT "usuario_pkey" PRIMARY KEY ("id");
 
 -- ----------------------------
+-- Primary Key structure for table usuario_tipo_ticket
+-- ----------------------------
+ALTER TABLE "public"."usuario_tipo_ticket" ADD CONSTRAINT "usuario_tipo_ticket_pkey" PRIMARY KEY ("usuario_id", "tipo_ticket_id");
+
+-- ----------------------------
 -- Foreign Keys structure for table logs_sesion
 -- ----------------------------
 ALTER TABLE "public"."logs_sesion" ADD CONSTRAINT "logs_sesion_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
@@ -338,4 +354,7 @@ ALTER TABLE "public"."ticket" ADD CONSTRAINT "ticket_estatus_ticket_id_fkey" FOR
 ALTER TABLE "public"."ticket" ADD CONSTRAINT "ticket_tipo_ticket_id_fkey" FOREIGN KEY ("tipo_ticket_id") REFERENCES "public"."tipo_ticket" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- ----------------------------
+-- Foreign Keys structure for table usuario_tipo_ticket
 -- ----------------------------
+ALTER TABLE "public"."usuario_tipo_ticket" ADD CONSTRAINT "usuario_tipo_ticket_tipo_ticket_id_fkey" FOREIGN KEY ("tipo_ticket_id") REFERENCES "public"."tipo_ticket" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE "public"."usuario_tipo_ticket" ADD CONSTRAINT "usuario_tipo_ticket_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
