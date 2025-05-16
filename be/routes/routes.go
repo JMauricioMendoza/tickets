@@ -41,6 +41,9 @@ func SetupRouter() *gin.Engine {
 		auth.GET("/ObtenerTicketPorID/:id", middleware.AdministradorMiddleware(), ObtenerTicketPorID)
 		auth.PATCH("/ActualizarEstatusTicket/:usuario_id", middleware.AdministradorMiddleware(), ActualizarEstatusTicket)
 
+		// Estatus ticket
+		auth.GET("/ObtenerEstatusTicketsActivos", ObtenerEstatusTicketsActivos)
+
 		// Usuario
 		auth.GET("/ObtenerUsuarios", middleware.AdministradorMiddleware(), ObtenerUsuarios)
 		auth.POST("/RegistrarUsuario/:usuario_admin_id", middleware.AdministradorMiddleware(), RegistrarUsuario)
