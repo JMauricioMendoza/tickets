@@ -13,7 +13,7 @@ func SetupRouter() *gin.Engine {
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowMethods:     []string{"GET", "POST", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
@@ -38,8 +38,8 @@ func SetupRouter() *gin.Engine {
 	{
 		// Ticket
 		auth.GET("/ObtenerTickets", middleware.AdministradorMiddleware(), ObtenerTickets)
-		auth.GET("/ObtenerTicketPorID/:id", middleware.AdministradorMiddleware(), ObtenerTicketPorID)
-		auth.PATCH("/ActualizarEstatusTicket/:usuario_id", middleware.AdministradorMiddleware(), ActualizarEstatusTicket)
+		auth.GET("/ObtenerTicketPorID/:id", ObtenerTicketPorID)
+		auth.PATCH("/ActualizarTicket", ActualizarTicket)
 
 		// Estatus ticket
 		auth.GET("/ObtenerEstatusTicketsActivos", ObtenerEstatusTicketsActivos)

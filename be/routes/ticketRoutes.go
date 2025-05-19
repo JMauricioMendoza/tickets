@@ -3,6 +3,7 @@ package routes
 import (
 	"backgo/database"
 	"backgo/models"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -94,15 +95,29 @@ func ObtenerTickets(c *gin.Context) {
 
 func ObtenerTicketPorID(c *gin.Context) {
 	id := c.Param("id")
-	row := database.DB.QueryRow("SELECT id, tipo_ticket_id, descripcion, estatus_ticket_id, creado_en FROM ticket WHERE id = $1", id)
+	row := database.DB.QueryRow(`
+		SELECT
+			t.id,
+			t.creado_por,
+			t.area_id,
+			a.nombre,
+			t.tipo_ticket_id,
+			t.estatus_ticket_id,
+			t.descripcion
+		FROM
+			ticket t
+			INNER JOIN area a ON a.id = t.area_id
+		WHERE
+			t.id = $1
+	`, id)
 
 	var ticket models.Ticket
-	if err := row.Scan(&ticket.ID, &ticket.TipoTicketID, &ticket.Descripcion, &ticket.EstatusTicketID, &ticket.CreadoEn); err != nil {
+	if err := row.Scan(&ticket.ID, &ticket.CreadoPor, &ticket.AreaID, &ticket.AreaNombre, &ticket.TipoTicketID, &ticket.EstatusTicketID, &ticket.Descripcion); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Ticket no encontrado"})
 		return
 	}
 
-	c.JSON(http.StatusOK, ticket)
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "ticket": ticket})
 }
 
 func CrearTicket(c *gin.Context) {
@@ -150,17 +165,28 @@ func CrearTicket(c *gin.Context) {
 	})
 }
 
-func ActualizarEstatusTicket(c *gin.Context) {
-	usuarioid := c.Param("usuario_id")
-	var ticket models.Ticket
-	if err := c.BindJSON(&ticket); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
+func ActualizarTicket(c *gin.Context) {
+	usuarioID, existe := c.Get("usuario_id")
+	if !existe {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "mensaje": "Usuario no autenticado"})
+		return
+	}
+
+	usuid, ok := usuarioID.(int)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": "Error de tipo de dato"})
+		return
+	}
+
+	var ticketNuevo models.Ticket
+	if err := c.BindJSON(&ticketNuevo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "mensaje": "Datos inválidos"})
 		return
 	}
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo iniciar la transacción"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
 	}
 
@@ -170,47 +196,72 @@ func ActualizarEstatusTicket(c *gin.Context) {
 		}
 	}()
 
-	var estatus int
-	queryEstatus := "SELECT estatus_ticket_id FROM ticket WHERE id = $1"
-	err = tx.QueryRow(queryEstatus, ticket.ID).Scan(&estatus)
+	var ticketActual models.Ticket
+	query := "SELECT tipo_ticket_id, estatus_ticket_id FROM ticket WHERE id = $1"
+	err = tx.QueryRow(query, ticketNuevo.ID).Scan(&ticketActual.TipoTicketID, &ticketActual.EstatusTicketID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
 	}
 
-	if estatus == 3 || estatus == 4 {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Estatus no válido para cambios"})
+	var validoActualiza bool
+	queryPermiso := `
+		SELECT
+			true 
+		FROM
+			usuario_tipo_ticket 
+		WHERE
+			usuario_id = $1
+			AND tipo_ticket_id = $2
+			AND estatus = true 
+		LIMIT 1
+	`
+
+	err = tx.QueryRow(queryPermiso, usuid, ticketActual.TipoTicketID).Scan(&validoActualiza)
+	if err == sql.ErrNoRows || !validoActualiza {
+		c.JSON(http.StatusForbidden, gin.H{"status": http.StatusForbidden, "mensaje": "No tienes permisos para modificar este tipo de ticket"})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
 	}
 
-	query := "UPDATE ticket SET estatus_ticket_id = $1, actualizado_en = NOW() WHERE id = $2"
-	_, err = tx.Exec(query, ticket.EstatusTicketID, ticket.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if ticketNuevo.TipoTicketID != ticketActual.TipoTicketID {
+		updateQueryTipo := "UPDATE ticket SET tipo_ticket_id = $1 WHERE id = $2"
+		_, err = tx.Exec(updateQueryTipo, ticketNuevo.TipoTicketID, ticketNuevo.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": ticketNuevo.TipoTicketID})
+			return
+		}
+
+		insertLogTipo := "INSERT INTO logs_ticket (ticket_id, usuario_id, accion) VALUES ($1, $2, 'Tipo de ticket actualizado')"
+		_, err = tx.Exec(insertLogTipo, ticketNuevo.ID, usuid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+			return
+		}
+	}
+
+	if ticketNuevo.EstatusTicketID != ticketActual.EstatusTicketID {
+		updateQueryEstatus := "UPDATE ticket SET estatus_ticket_id = $1 WHERE id = $2"
+		_, err = tx.Exec(updateQueryEstatus, ticketNuevo.EstatusTicketID, ticketNuevo.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+			return
+		}
+
+		insertLogEstatus := "INSERT INTO logs_ticket (ticket_id, usuario_id, accion) VALUES ($1, $2, 'Estatus de ticket actualizado')"
+		_, err = tx.Exec(insertLogEstatus, ticketNuevo.ID, usuid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+			return
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
 	}
 
-	var nombreEstatus string
-	queryNombre := "SELECT nombre FROM estatus_ticket WHERE id = $1"
-	err = tx.QueryRow(queryNombre, ticket.EstatusTicketID).Scan(&nombreEstatus)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	accion := fmt.Sprintf("Ticket actualizado a estatus '%s'", nombreEstatus)
-	queryLog := "INSERT INTO logs_ticket (ticket_id, usuario_id, accion) VALUES ($1, $2, $3)"
-	_, err = tx.Exec(queryLog, ticket.ID, usuarioid, accion)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo completar la transacción"})
-		return
-	}
-
-	c.JSON(http.StatusOK, ticket)
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "mensaje": "Ticket actualizado correctamente"})
 }
