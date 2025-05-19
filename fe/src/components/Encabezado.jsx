@@ -22,8 +22,10 @@ function Encabezado({ usuario, setUsuario }) {
 
   const location = useLocation();
 
+  const apiURL = process.env.REACT_APP_API_URL;
+
   const verificaSesion = useCallback(() => {
-    fetch("http://localhost:8080/VerificaSesion", {
+    fetch(`${apiURL}/VerificaSesion`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("token")}`,
@@ -76,6 +78,7 @@ function Encabezado({ usuario, setUsuario }) {
           varianteModal={varianteModal}
           mensajeModal={mensajeModal}
           navigate={navigate}
+          apiURL={apiURL}
         />
       ) : (
         <div className="flex gap-2 items-center">
@@ -111,9 +114,10 @@ function DropdownComp({
   setVarianteModal,
   setMensajeModal,
   navigate,
+  apiURL,
 }) {
   const CierraSesion = useCallback(() => {
-    fetch(`http://localhost:8080/CerrarSesion/${usuario.usuarioId}`, {
+    fetch(`${apiURL}/CerrarSesion/${usuario.usuarioId}`, {
       method: "DELETE",
     })
       .then((response) => response.json())

@@ -20,10 +20,12 @@ function Login() {
 
   const navigate = useNavigate();
 
+  const apiURL = process.env.REACT_APP_API_URL;
+
   function IniciarSesion(ev) {
     ev.preventDefault();
 
-    fetch("http://localhost:8080/IniciarSesion", {
+    fetch(`${apiURL}/IniciarSesion`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -32,8 +32,10 @@ function CrearTicket() {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  const apiURL = process.env.REACT_APP_API_URL;
+
   const ObtenerTipoTickets = useCallback(() => {
-    fetch("http://localhost:8080/ObtenerTipoTicketsActivos", {
+    fetch(`${apiURL}/ObtenerTipoTicketsActivos`, {
       method: "GET",
     })
       .then((response) => response.json())
@@ -53,7 +55,7 @@ function CrearTicket() {
   }, [onOpen]);
 
   const ObtenerAreas = useCallback(() => {
-    fetch("http://localhost:8080/ObtenerAreaActivos", {
+    fetch(`${apiURL}/ObtenerAreaActivos`, {
       method: "GET",
     })
       .then((response) => response.json())
@@ -75,7 +77,7 @@ function CrearTicket() {
   function enviarDatos(ev) {
     ev.preventDefault();
 
-    fetch("http://localhost:8080/CrearTicket", {
+    fetch(`${apiURL}/CrearTicket`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

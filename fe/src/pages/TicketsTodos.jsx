@@ -25,6 +25,8 @@ function TicketsTodos() {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  const apiURL = process.env.REACT_APP_API_URL;
+
   const navigate = useNavigate();
 
   const obtenerTickets = useCallback(() => {
@@ -32,7 +34,7 @@ function TicketsTodos() {
 
     if (!usuario) return;
 
-    fetch("http://localhost:8080/ObtenerTickets", {
+    fetch(`${apiURL}/ObtenerTickets`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("token")}`,
