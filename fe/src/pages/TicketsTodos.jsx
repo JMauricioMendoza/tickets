@@ -132,7 +132,12 @@ function ListaTickets({ ticketsFiltrados }) {
             <CardHeader>
               <div className="flex justify-between pt-5 pr-5 pl-5 w-full">
                 <p className="text-medium font-semibold">Ticket #{item.id}</p>
-                <p>{item.creado_en.substring(0, 10)}</p>
+                <div className="flex gap-2">
+                  <p className="font-medium">
+                    {item.creado_en.substring(0, 10)}
+                  </p>
+                  <p>{item.creado_en.substring(11, 16)}</p>
+                </div>
               </div>
             </CardHeader>
             <CardBody>
