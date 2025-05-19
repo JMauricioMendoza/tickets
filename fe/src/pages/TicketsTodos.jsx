@@ -15,7 +15,7 @@ import {
 } from "@heroui/react";
 import { AiOutlineReload } from "react-icons/ai";
 import Layout from "../components/Layout";
-import ModalComp from "../components/Modal";
+import ModalComp from "../components/ModalComp";
 
 function TicketsTodos() {
   const [usuario, setUsuario] = useState(null);

@@ -9,7 +9,7 @@ import {
   Form,
 } from "@heroui/react";
 import Layout from "../components/Layout";
-import ModalComp from "../components/Modal";
+import ModalComp from "../components/ModalComp";
 import verificaVacio from "../utils/verificaVacio";
 
 function CrearTicket() {

@@ -10,7 +10,7 @@ import {
 } from "@heroui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
-import ModalComp from "../components/Modal";
+import ModalComp from "../components/ModalComp";
 import obtenerValorSet from "../utils/obtenerValorSet";
 
 function EditarTicket() {

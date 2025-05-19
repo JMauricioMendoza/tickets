@@ -3,7 +3,7 @@ import { Input, Button, useDisclosure, Form } from "@heroui/react";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
-import ModalComp from "../components/Modal";
+import ModalComp from "../components/ModalComp";
 import verificaDatos from "../utils/verificaDatos";
 import verificaVacio from "../utils/verificaVacio";
 
