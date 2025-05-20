@@ -75,8 +75,8 @@ function Login() {
   return (
     <Layout>
       <Form onSubmit={(ev) => IniciarSesion(ev)}>
-        <div className="flex items-center justify-center flex-col gap-7 w-72">
-          <h2 className="text-xl text-center font-semibold">
+        <div className="flex items-center justify-center flex-col gap-12 w-[400px]">
+          <h2 className="text-l text-center font-semibold">
             Inicia sesión como usuario administrador
           </h2>
           <Input

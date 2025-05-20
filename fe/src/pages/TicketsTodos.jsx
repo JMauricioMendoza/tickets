@@ -68,8 +68,13 @@ function TicketsTodos() {
 
   return (
     <>
-      <Layout usuario={usuario} setUsuario={setUsuario}>
-        <div className="flex flex-col gap-9 w-[900px]">
+      <Layout
+        usuario={usuario}
+        setUsuario={setUsuario}
+        textoBotonRegresar="Menú principal"
+        rutaBotonRegresar="/dashboard"
+      >
+        <div className="flex flex-col gap-9 w-full">
           <h2 className="text-institucional text-2xl font-semibold">
             Todos los tickets
           </h2>

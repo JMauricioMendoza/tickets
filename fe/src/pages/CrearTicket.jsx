@@ -135,9 +135,14 @@ function CrearTicket() {
 
   return (
     <>
-      <Layout usuario={usuario} setUsuario={setUsuario}>
-        <Form onSubmit={(ev) => enviarDatos(ev)}>
-          <div className="flex flex-col gap-9 w-[900px]">
+      <Layout
+        usuario={usuario}
+        setUsuario={setUsuario}
+        textoBotonRegresar={usuario ? "Menú principal" : null}
+        rutaBotonRegresar={usuario ? "/dashboard" : null}
+      >
+        <Form className="w-full" onSubmit={(ev) => enviarDatos(ev)}>
+          <div className="flex flex-col gap-9 w-full">
             <h2 className="text-institucional text-2xl font-semibold">
               Crear un ticket
             </h2>
@@ -184,7 +189,7 @@ function CrearTicket() {
                 />
               </div>
             </div>
-            <div className="flex justify-end w-[900px]">
+            <div className="flex justify-end">
               <Button
                 type="submit"
                 color="primary"

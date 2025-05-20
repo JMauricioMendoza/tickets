@@ -173,10 +173,15 @@ function EditarTicket() {
 
   return (
     <>
-      <Layout usuario={usuario} setUsuario={setUsuario}>
-        <Form onSubmit={(ev) => enviarDatos(ev)}>
+      <Layout
+        usuario={usuario}
+        setUsuario={setUsuario}
+        textoBotonRegresar="Lista de tickets"
+        rutaBotonRegresar="/tickets-todos"
+      >
+        <Form className="w-full" onSubmit={(ev) => enviarDatos(ev)}>
           {ticket && tipoTickets && estatusTickets ? (
-            <div className="flex flex-col gap-9 w-[900px]">
+            <div className="flex flex-col gap-9 w-full">
               <h2 className="text-institucional text-2xl font-semibold">
                 Editar un ticket
               </h2>
@@ -231,7 +236,7 @@ function EditarTicket() {
                   />
                 </div>
               </div>
-              <div className="flex justify-between w-[900px]">
+              <div className="flex justify-between w-full">
                 <Button
                   type="submit"
                   color="danger"
