@@ -5,6 +5,7 @@ import { FaUserCircle, FaArrowLeft } from "react-icons/fa";
 import DropdownComp from "./DropdownComp";
 import ModalComp from "./ModalComp";
 import LogoIceo from "../assets/img/logoIceo.png";
+import forzarCierreSesion from "../utils/forzarCierreSesion";
 
 function Layout({
   children,
@@ -68,10 +69,7 @@ function Encabezado({
             });
             break;
           case 401:
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("admin");
-
-            if (location.pathname !== "/crear-ticket") navigate("/login");
+            forzarCierreSesion(navigate, location.pathname);
             break;
           default:
             break;

@@ -16,6 +16,7 @@ import {
 import { AiOutlineReload } from "react-icons/ai";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
+import forzarCierreSesion from "../utils/forzarCierreSesion";
 
 function TicketsTodos() {
   const [usuario, setUsuario] = useState(null);
@@ -52,9 +53,7 @@ function TicketsTodos() {
             setTicketsFiltrados(data.tickets ? data.tickets : []);
             break;
           case 401:
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("admin");
-            navigate("/login");
+            forzarCierreSesion(navigate);
             break;
           default:
             break;

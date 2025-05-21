@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import obtenerValorSet from "../utils/obtenerValorSet";
+import forzarCierreSesion from "../utils/forzarCierreSesion";
 
 function EditarTicket() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -74,9 +75,7 @@ function EditarTicket() {
             setEstatusTickets(data.estatusTickets);
             break;
           case 401:
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("admin");
-            navigate("/login");
+            forzarCierreSesion(navigate);
             break;
           default:
             break;
@@ -102,9 +101,7 @@ function EditarTicket() {
             setTicket(data.ticket);
             break;
           case 401:
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("admin");
-            navigate("/login");
+            forzarCierreSesion(navigate);
             break;
           default:
             break;

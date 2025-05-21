@@ -13,8 +13,9 @@ function DropdownComp({
   onOpen,
   setVarianteModal,
   setMensajeModal,
-  navigate,
   apiURL,
+  navigate,
+  forzarCierreSesion,
 }) {
   const CierraSesion = useCallback(() => {
     fetch(`${apiURL}/CerrarSesion/${usuario.usuarioId}`, {
@@ -28,9 +29,7 @@ function DropdownComp({
             setVarianteModal("error");
             break;
           case 200:
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("admin");
-            navigate("/login");
+            forzarCierreSesion(navigate);
             break;
           case 400:
             onOpen();
