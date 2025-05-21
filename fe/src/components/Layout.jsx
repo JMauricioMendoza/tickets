@@ -1,25 +1,39 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDisclosure, Button } from "@heroui/react";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaArrowLeft } from "react-icons/fa";
 import DropdownComp from "./DropdownComp";
 import ModalComp from "./ModalComp";
 import LogoIceo from "../assets/img/logoIceo.png";
 
-function Layout({ children, usuario, setUsuario }) {
+function Layout({
+  children,
+  usuario,
+  setUsuario,
+  textoBotonRegresar,
+  rutaBotonRegresar,
+}) {
   return (
     <div className="flex items-start justify-center w-full min-h-screen bg-gray-200">
-      <div
-        className={`relative flex items-center justify-center ${usuario ? "pt-36 pb-12" : "min-h-[720px]"} w-[1080px] bg-white rounded-xl`}
-      >
-        <Encabezado usuario={usuario} setUsuario={setUsuario} />
+      <div className="flex flex-col items-center justify-center gap-12 w-[1080px] bg-white rounded-xl px-12 pb-14">
+        <Encabezado
+          usuario={usuario}
+          setUsuario={setUsuario}
+          textoBotonRegresar={textoBotonRegresar}
+          rutaBotonRegresar={rutaBotonRegresar}
+        />
         {children}
       </div>
     </div>
   );
 }
 
-function Encabezado({ usuario, setUsuario }) {
+function Encabezado({
+  usuario,
+  setUsuario,
+  textoBotonRegresar,
+  rutaBotonRegresar,
+}) {
   const [mensajeModal, setMensajeModal] = useState("");
   const [varianteModal, setVarianteModal] = useState("");
 
@@ -70,41 +84,51 @@ function Encabezado({ usuario, setUsuario }) {
   }, [location.pathname, verificaSesion]);
 
   return (
-    <header className="flex items-center justify-between absolute top-0 px-12 py-4 w-full font-bold">
-      <div className="w-60">
-        <img className="object-cover w-full" src={LogoIceo} alt="Logo ICEO" />
-      </div>
-      {usuario ? (
-        <DropdownComp
-          usuario={usuario}
-          onOpen={onOpen}
-          setVarianteModal={setVarianteModal}
-          setMensajeModal={setMensajeModal}
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-          varianteModal={varianteModal}
-          mensajeModal={mensajeModal}
-          navigate={navigate}
-          apiURL={apiURL}
-        />
-      ) : (
-        <div className="flex gap-2 items-center">
-          <h1 className="text-2xl text-institucional">
-            Plataforma de Gestión de Incidencias
-          </h1>
-          {location.pathname !== "/login" ? (
-            <span>
-              <Button
-                variant="light"
-                className="text-9xl"
-                onPress={() => navigate("/login")}
-              >
-                <FaUserCircle />
-              </Button>
-            </span>
-          ) : null}
+    <header className="flex flex-col gap-6 pt-3 w-full">
+      <div className="flex justify-between">
+        <div className="w-60">
+          <img className="object-cover w-full" src={LogoIceo} alt="Logo ICEO" />
         </div>
-      )}
+        {usuario ? (
+          <DropdownComp
+            usuario={usuario}
+            onOpen={onOpen}
+            setVarianteModal={setVarianteModal}
+            setMensajeModal={setMensajeModal}
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            varianteModal={varianteModal}
+            mensajeModal={mensajeModal}
+            apiURL={apiURL}
+            navigate={navigate}
+            forzarCierreSesion={forzarCierreSesion}
+          />
+        ) : (
+          <div className="flex gap-2 items-center">
+            <h1 className="text-2xl text-institucional font-bold">
+              Plataforma de Gestión de Incidencias
+            </h1>
+            {location.pathname !== "/login" ? (
+              <span>
+                <Button
+                  variant="light"
+                  className="text-9xl"
+                  onPress={() => navigate("/login")}
+                >
+                  <FaUserCircle />
+                </Button>
+              </span>
+            ) : null}
+          </div>
+        )}
+      </div>
+      <span>
+        <BotonRegresar
+          textoBotonRegresar={textoBotonRegresar}
+          rutaBotonRegresar={rutaBotonRegresar}
+          navigate={navigate}
+        />
+      </span>
       <ModalComp
         isOpen={isOpen}
         onOpenChange={onOpenChange}
@@ -112,6 +136,23 @@ function Encabezado({ usuario, setUsuario }) {
         mensaje={mensajeModal}
       />
     </header>
+  );
+}
+
+function BotonRegresar({ textoBotonRegresar, rutaBotonRegresar, navigate }) {
+  return (
+    textoBotonRegresar &&
+    rutaBotonRegresar && (
+      <Button
+        className="font-semibold"
+        color="danger"
+        variant="flat"
+        onPress={() => navigate(rutaBotonRegresar)}
+        startContent={<FaArrowLeft />}
+      >
+        {textoBotonRegresar}
+      </Button>
+    )
   );
 }
 
