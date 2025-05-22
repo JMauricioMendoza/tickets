@@ -3,6 +3,7 @@ package routes
 import (
 	"backgo/database"
 	"backgo/models"
+	"database/sql"
 	"net/http"
 	"strconv"
 	"time"
@@ -157,11 +158,23 @@ func VerificaSesion(c *gin.Context) {
 
 	var nombre string
 	err := database.DB.QueryRow(`
-		SELECT usuario.nombre
-		FROM usuario
-		WHERE usuario.id = $1`, id).Scan(&nombre)
+	SELECT usuario.nombre
+	FROM usuario
+	WHERE usuario.id = $1
+	AND estatus IS TRUE`, id).Scan(&nombre)
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status":  http.StatusUnauthorized,
+				"mensaje": "No autorizado: usuario no encontrado o inactivo",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  http.StatusInternalServerError,
+			"mensaje": err.Error(),
+		})
 		return
 	}
 

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"backgo/database"
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,13 @@ func AutenticacionMiddleware() gin.HandlerFunc {
 			token = token[7:]
 		}
 		var usuarioID int
-		query := "SELECT usuario_id FROM sesion WHERE token = $1 AND expira_en > NOW()"
+
+		query := `
+            SELECT s.usuario_id
+            FROM sesion s
+            JOIN usuario u ON s.usuario_id = u.id
+            WHERE s.token = $1 AND s.expira_en > NOW() AND u.estatus IS TRUE
+        `
 		err := database.DB.QueryRow(query, token).Scan(&usuarioID)
 
 		if err != nil {
@@ -52,10 +59,21 @@ func AdministradorMiddleware() gin.HandlerFunc {
 		}
 
 		var esAdmin bool
-		query := "SELECT administrador FROM usuario WHERE id = $1"
+		query := "SELECT administrador FROM usuario WHERE id = $1 AND estatus IS TRUE"
 		err := database.DB.QueryRow(query, usuarioID).Scan(&esAdmin)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"status":  http.StatusUnauthorized,
+					"mensaje": "No autorizado: usuario no encontrado o inactivo",
+				})
+				c.Abort()
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status":  http.StatusInternalServerError,
+				"mensaje": err.Error(),
+			})
 			c.Abort()
 			return
 		}
