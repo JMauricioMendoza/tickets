@@ -3,12 +3,17 @@ package routes
 import (
 	"backgo/database"
 	"backgo/models"
+	"backgo/utils"
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func ObtenerTickets(c *gin.Context) {
@@ -157,6 +162,33 @@ func CrearTicket(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
 		return
+	}
+
+	queryTipoTicket := "SELECT nombre FROM tipo_ticket WHERE id = $1"
+	var tipoTicketNombre string
+	err = database.DB.QueryRow(queryTipoTicket, ticket.TipoTicketID).Scan(&tipoTicketNombre)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+		return
+	}
+
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatal("Error cargando el archivo .env")
+	}
+
+	token := os.Getenv("TELEGRAM_TOKEN")
+	chatIDStr := os.Getenv("TELEGRAM_CHAT_ID")
+
+	chatID, err := strconv.ParseInt(chatIDStr, 10, 64)
+	if err != nil {
+		log.Println("Error convirtiendo chatID a int64:", err.Error())
+	}
+
+	message := fmt.Sprintf("🎫 *Nuevo Ticket*\n*ID:* %d\n*Área de soporte:* %s\n*Descripción:* %s", ticket.ID, tipoTicketNombre, ticket.Descripcion)
+	err = utils.EnviarMensajeTelegram(token, chatID, message)
+	if err != nil {
+		log.Println("Error enviando mensaje a Telegram:", err.Error())
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
