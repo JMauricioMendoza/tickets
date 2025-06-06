@@ -6,7 +6,7 @@ module.exports = {
   extends: [
     "airbnb",
     "plugin:react/recommended",
-    "plugin:prettier/recommended", // 💡 Esto conecta ESLint con Prettier
+    "plugin:prettier/recommended",
   ],
   parserOptions: {
     ecmaFeatures: {
@@ -17,11 +17,12 @@ module.exports = {
   },
   plugins: ["react", "prettier"],
   rules: {
-    "prettier/prettier": "error", // marca como error si no sigue formato prettier
-    "react/react-in-jsx-scope": "off", // si usas React 17+
+    "prettier/prettier": "error",
+    "react/react-in-jsx-scope": "off",
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx"] }],
     "import/prefer-default-export": "off",
     "react/prop-types": "off",
     "react/require-default-props": "off",
+    "linebreak-style": ["error", "unix"],
   },
 };
