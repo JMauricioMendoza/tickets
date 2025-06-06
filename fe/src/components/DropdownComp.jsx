@@ -5,6 +5,7 @@ import {
   Button,
   DropdownMenu,
   DropdownItem,
+  DropdownSection,
 } from "@heroui/react";
 import { FaUserCircle } from "react-icons/fa";
 
@@ -53,6 +54,18 @@ function DropdownComp({
         </Button>
       </DropdownTrigger>
       <DropdownMenu aria-label="Static Actions">
+        <DropdownSection showDivider>
+          <DropdownItem
+            key="password"
+            onPress={() => {
+              navigate("/editar-password", {
+                state: { id: usuario.usuarioId },
+              });
+            }}
+          >
+            Cambiar contraseña
+          </DropdownItem>
+        </DropdownSection>
         <DropdownItem
           key="delete"
           className="text-danger"
