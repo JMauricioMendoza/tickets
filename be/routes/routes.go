@@ -45,9 +45,14 @@ func SetupRouter() *gin.Engine {
 		auth.GET("/ObtenerEstatusTicketsActivos", ObtenerEstatusTicketsActivos)
 
 		// Usuario
-		auth.GET("/ObtenerUsuarios", middleware.AdministradorMiddleware(), ObtenerUsuarios)
-		auth.POST("/RegistrarUsuario/:usuario_admin_id", middleware.AdministradorMiddleware(), RegistrarUsuario)
-		auth.POST("/CambiarPassword/:usuario_admin_id", CambiarPassword)
+		auth.GET("/ObtenerUsuariosActivos", middleware.AdministradorMiddleware(), ObtenerUsuariosActivos)
+		auth.GET("/ObtenerUsuariosInactivos", middleware.AdministradorMiddleware(), ObtenerUsuariosInactivos)
+		auth.GET("/ObtenerUsuarioPorID/:id", middleware.AdministradorMiddleware(), ObtenerUsuarioPorID)
+		auth.POST("/CrearUsuario", middleware.AdministradorMiddleware(), CrearUsuario)
+		auth.PATCH("/InhabilitarUsuario", middleware.AdministradorMiddleware(), InhabilitarUsuario)
+		auth.PATCH("/HabilitarUsuario", middleware.AdministradorMiddleware(), HabilitarUsuario)
+		auth.PATCH("/ActualizarUsuario", middleware.AdministradorMiddleware(), ActualizarUsuario)
+		auth.PATCH("/CambiarPassword", CambiarPassword)
 
 		// Sesion
 		auth.GET("/VerificaSesion", VerificaSesion)

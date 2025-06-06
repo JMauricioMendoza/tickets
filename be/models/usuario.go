@@ -9,9 +9,8 @@ type Usuario struct {
 	Nombre        string `json:"nombre"`
 	Password      string `json:"password,omitempty"`
 	Usuario       string `json:"usuario"`
-	AreaID        int    `json:"area_id"`
 	Administrador bool   `json:"administrador"`
-	Estatus       bool   `json:"estatus"`
+	TipoTicketID  []int  `json:"tipo_ticket_id"`
 }
 
 func (u *Usuario) HashearPassword() error {

@@ -131,7 +131,7 @@ DROP TABLE IF EXISTS "public"."logs_ticket";
 CREATE TABLE "public"."logs_ticket" (
   "id" int4 NOT NULL DEFAULT nextval('logs_ticket_id_seq'::regclass),
   "ticket_id" int8 NOT NULL,
-  "usuario_id" int8 NOT NULL,
+  "usuario_id" int8,
   "accion" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
   "creado_en" timestamp(0) NOT NULL DEFAULT now()
 )
@@ -144,7 +144,7 @@ DROP TABLE IF EXISTS "public"."logs_usuario";
 CREATE TABLE "public"."logs_usuario" (
   "id" int4 NOT NULL DEFAULT nextval('logs_usuario_id_seq'::regclass),
   "usuario_id" int8 NOT NULL,
-  "usuario_admin_id" int8,
+  "usuario_modificador_id" int8 NOT NULL,
   "accion" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
   "creado_en" timestamp(0) NOT NULL DEFAULT now()
 )
@@ -173,8 +173,8 @@ CREATE TABLE "public"."ticket" (
   "estatus_ticket_id" int8 NOT NULL DEFAULT 1,
   "creado_en" timestamp(0) NOT NULL DEFAULT now(),
   "actualizado_en" timestamp(0) NOT NULL DEFAULT now(),
-  "creado_por" varchar(150) COLLATE "pg_catalog"."default",
-  "area_id" int4
+  "creado_por" varchar(150) COLLATE "pg_catalog"."default" NOT NULL,
+  "area_id" int8 NOT NULL
 )
 ;
 
@@ -203,7 +203,7 @@ CREATE TABLE "public"."usuario" (
   "administrador" bool NOT NULL DEFAULT false,
   "estatus" bool NOT NULL DEFAULT true,
   "creado_en" timestamp(0) NOT NULL DEFAULT now(),
-  "actualizado_en" timestamp(0) NOT NULL DEFAULT now()
+  "actualizado_en" timestamp(0)
 )
 ;
 
@@ -214,7 +214,9 @@ DROP TABLE IF EXISTS "public"."usuario_tipo_ticket";
 CREATE TABLE "public"."usuario_tipo_ticket" (
   "usuario_id" int4 NOT NULL,
   "tipo_ticket_id" int4 NOT NULL,
-  "estatus" bool NOT NULL DEFAULT true
+  "estatus" bool NOT NULL DEFAULT true,
+  "creado_en" timestamp(6) NOT NULL DEFAULT now(),
+  "actualizado_en" timestamp(6)
 )
 ;
 
@@ -237,28 +239,28 @@ SELECT setval('"public"."estatus_ticket_id_seq"', 1, false);
 -- ----------------------------
 ALTER SEQUENCE "public"."logs_sesion_id_seq"
 OWNED BY "public"."logs_sesion"."id";
-SELECT setval('"public"."logs_sesion_id_seq"', 108, true);
+SELECT setval('"public"."logs_sesion_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."logs_ticket_id_seq"
 OWNED BY "public"."logs_ticket"."id";
-SELECT setval('"public"."logs_ticket_id_seq"', 23, true);
+SELECT setval('"public"."logs_ticket_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."logs_usuario_id_seq"
 OWNED BY "public"."logs_usuario"."id";
-SELECT setval('"public"."logs_usuario_id_seq"', 2, true);
+SELECT setval('"public"."logs_usuario_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."ticket_id_seq"
 OWNED BY "public"."ticket"."id";
-SELECT setval('"public"."ticket_id_seq"', 7, true);
+SELECT setval('"public"."ticket_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -272,7 +274,7 @@ SELECT setval('"public"."tipo_ticket_id_seq"', 1, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."usuario_id_seq"
 OWNED BY "public"."usuario"."id";
-SELECT setval('"public"."usuario_id_seq"', 5, true);
+SELECT setval('"public"."usuario_id_seq"', 1, true);
 
 -- ----------------------------
 -- Primary Key structure for table area
@@ -338,7 +340,7 @@ ALTER TABLE "public"."logs_ticket" ADD CONSTRAINT "logs_ticket_usuario_id_fkey" 
 -- ----------------------------
 -- Foreign Keys structure for table logs_usuario
 -- ----------------------------
-ALTER TABLE "public"."logs_usuario" ADD CONSTRAINT "logs_usuario_usuario_admin_id_fkey" FOREIGN KEY ("usuario_admin_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE "public"."logs_usuario" ADD CONSTRAINT "logs_usuario_usuario_admin_id_fkey" FOREIGN KEY ("usuario_modificador_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE "public"."logs_usuario" ADD CONSTRAINT "logs_usuario_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- ----------------------------
