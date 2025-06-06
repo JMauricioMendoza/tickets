@@ -258,7 +258,9 @@ function EditarTicket() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
-        onAccept={() => navigate("/tickets-todos")}
+        onAccept={
+          varianteModal === "correcto" ? () => navigate("/tickets-todos") : null
+        }
       />
     </>
   );

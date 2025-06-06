@@ -208,7 +208,7 @@ function CrearTicket() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
-        onAccept={limpiarInputs}
+        onAccept={varianteModal === "correcto" ? limpiarInputs : null}
       />
     </>
   );
