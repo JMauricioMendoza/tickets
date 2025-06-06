@@ -144,7 +144,7 @@ function BotonRegresar({ textoBotonRegresar, rutaBotonRegresar, navigate }) {
       <Button
         className="font-semibold"
         color="danger"
-        variant="flat"
+        variant="bordered"
         onPress={() => navigate(rutaBotonRegresar)}
         startContent={<FaArrowLeft />}
       >
