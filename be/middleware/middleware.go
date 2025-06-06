@@ -79,7 +79,7 @@ func AdministradorMiddleware() gin.HandlerFunc {
 		}
 
 		if !esAdmin {
-			c.JSON(http.StatusForbidden, gin.H{"status": http.StatusForbidden, "mensaje": "Acceso restringido a administradores"})
+			c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "mensaje": "Acceso restringido a administradores"})
 			c.Abort()
 			return
 		}
