@@ -6,8 +6,11 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -52,11 +55,28 @@ func limpiarSesiones(db *sql.DB) {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No se pudo cargar el archivo .env")
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	database.ConectarDB()
+
 	go limpiarSesiones(database.DB)
 
 	r := routes.SetupRouter()
 
-	fmt.Println("🚀 Servidor corriendo en http://localhost:8080")
-	r.Run(":8080")
+	r.Static("/static", "./fe/build/static")
+	r.StaticFile("/", "./fe/build/index.html")
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./fe/build/index.html")
+	})
+
+	fmt.Printf("Servidor corriendo en http://localhost:%s\n", port)
+	r.Run(":" + port)
 }
