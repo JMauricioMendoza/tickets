@@ -18,8 +18,10 @@ function EditarTicket() {
   const [tipoTickets, setTipoTickets] = useState(null);
   const [estatusTickets, setEstatusTickets] = useState(null);
   const [ticket, setTicket] = useState(null);
+
   const [mensajeModal, setMensajeModal] = useState("");
   const [varianteModal, setVarianteModal] = useState("");
+  const [estaCargando, setEstaCargando] = useState(false);
 
   const [valorTipo, setValorTipo] = useState(new Set([]));
   const [valorEstatus, setValorEstatus] = useState(new Set([]));
@@ -111,6 +113,8 @@ function EditarTicket() {
 
   function enviarDatos(ev) {
     ev.preventDefault();
+    setEstaCargando(true);
+
     const tipoID = obtenerValorSet(valorTipo);
     const estatusID = obtenerValorSet(valorEstatus);
     fetch(`${apiURL}/ActualizarTicket`, {
@@ -129,6 +133,7 @@ function EditarTicket() {
         return response.json();
       })
       .then((data) => {
+        setEstaCargando(false);
         switch (data.status) {
           case 500:
             onOpen();
@@ -245,6 +250,7 @@ function EditarTicket() {
                   type="submit"
                   color="primary"
                   isDisabled={tipoVacia || estatusVacia}
+                  isLoading={estaCargando}
                 >
                   Aceptar
                 </Button>

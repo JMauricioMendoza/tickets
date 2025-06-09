@@ -13,8 +13,10 @@ function Login() {
   const [usuarioVacio, setUsuarioVacio] = useState(true);
   const [passwdVacio, setPasswdVacio] = useState(true);
   const [esVisible, setEsVisible] = useState(false);
+
   const [mensajeModal, setMensajeModal] = useState("");
   const [varianteModal, setVarianteModal] = useState("");
+  const [estaCargando, setEstaCargando] = useState(false);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -22,8 +24,9 @@ function Login() {
 
   const apiURL = process.env.REACT_APP_API_URL;
 
-  function IniciarSesion(ev) {
+  function enviarDatos(ev) {
     ev.preventDefault();
+    setEstaCargando(true);
 
     fetch(`${apiURL}/IniciarSesion`, {
       method: "POST",
@@ -39,6 +42,7 @@ function Login() {
         return response.json();
       })
       .then((data) => {
+        setEstaCargando(false);
         switch (data.status) {
           case 500:
             onOpen();
@@ -74,7 +78,7 @@ function Login() {
 
   return (
     <Layout>
-      <Form onSubmit={(ev) => IniciarSesion(ev)}>
+      <Form onSubmit={(ev) => enviarDatos(ev)}>
         <div className="flex items-center justify-center flex-col gap-12 w-[400px]">
           <h2 className="text-l text-center font-semibold">
             Inicia sesión como usuario administrador
@@ -110,6 +114,7 @@ function Login() {
             type="submit"
             isDisabled={usuarioVacio || passwdVacio}
             color="primary"
+            isLoading={estaCargando}
           >
             Entrar
           </Button>

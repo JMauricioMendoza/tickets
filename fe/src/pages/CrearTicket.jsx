@@ -15,8 +15,10 @@ import verificaVacio from "../utils/verificaVacio";
 function CrearTicket() {
   const [tipoTickets, setTipoTickets] = useState(null);
   const [areas, setTipoAreas] = useState(null);
+
   const [mensajeModal, setMensajeModal] = useState("");
   const [varianteModal, setVarianteModal] = useState("");
+  const [estaCargando, setEstaCargando] = useState(false);
 
   const [valorNombre, setValorNombre] = useState("");
   const [valorDescripcion, setValorDescripcion] = useState("");
@@ -76,6 +78,7 @@ function CrearTicket() {
 
   function enviarDatos(ev) {
     ev.preventDefault();
+    setEstaCargando(true);
 
     fetch(`${apiURL}/CrearTicket`, {
       method: "POST",
@@ -93,6 +96,7 @@ function CrearTicket() {
         return response.json();
       })
       .then((data) => {
+        setEstaCargando(false);
         switch (data.status) {
           case 500:
             onOpen();
@@ -196,6 +200,7 @@ function CrearTicket() {
                 isDisabled={
                   descripcionVacia || tipoVacia || areaVacia || nombreVacia
                 }
+                isLoading={estaCargando}
               >
                 Solicitar soporte
               </Button>

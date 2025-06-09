@@ -21,6 +21,7 @@ function EditarUsuario() {
 
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
+  const [estaCargando, setEstaCargando] = useState(false);
 
   const [valorNombre, setValorNombre] = useState("");
   const [valorUsuario, setValorUsuario] = useState("");
@@ -89,6 +90,7 @@ function EditarUsuario() {
 
   function enviarDatos(ev) {
     ev.preventDefault();
+    setEstaCargando(true);
 
     fetch(`${apiURL}/ActualizarUsuario`, {
       method: "PATCH",
@@ -108,6 +110,7 @@ function EditarUsuario() {
         return response.json();
       })
       .then((data) => {
+        setEstaCargando(false);
         switch (data.status) {
           case 500:
             onOpen();
@@ -210,6 +213,7 @@ function EditarUsuario() {
                 type="submit"
                 color="primary"
                 isDisabled={nombreVacia || usuarioVacia || tipoVacia}
+                isLoading={estaCargando}
               >
                 Editar usuario
               </Button>

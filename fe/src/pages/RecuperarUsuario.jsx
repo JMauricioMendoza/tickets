@@ -19,6 +19,7 @@ function EditarPassword() {
 
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
+  const [estaCargando, setEstaCargando] = useState(false);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -54,6 +55,8 @@ function EditarPassword() {
 
   function enviarDatos(ev) {
     ev.preventDefault();
+    setEstaCargando(true);
+
     const id = Number(usuarioSeleccionado);
 
     fetch(`${apiURL}/HabilitarUsuario`, {
@@ -64,6 +67,7 @@ function EditarPassword() {
       },
       body: JSON.stringify({ id }),
     }).then(async (response) => {
+      setEstaCargando(false);
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         if (response.status === 401) {
@@ -120,6 +124,7 @@ function EditarPassword() {
                 type="submit"
                 color="primary"
                 isDisabled={usuarioSeleccionado === null}
+                isLoading={estaCargando}
               >
                 Recuperar
               </Button>

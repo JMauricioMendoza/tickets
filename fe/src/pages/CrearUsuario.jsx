@@ -18,8 +18,10 @@ import verificaDatos from "../utils/verificaDatos";
 
 function CrearUsuario() {
   const [tipoTickets, setTipoTickets] = useState(null);
+
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
+  const [estaCargando, setEstaCargando] = useState(false);
 
   const [valorNombre, setValorNombre] = useState("");
   const [valorUsuario, setValorUsuario] = useState("");
@@ -42,6 +44,7 @@ function CrearUsuario() {
 
   function enviarDatos(ev) {
     ev.preventDefault();
+    estaCargando(true);
 
     fetch(`${apiURL}/CrearUsuario`, {
       method: "POST",
@@ -61,6 +64,7 @@ function CrearUsuario() {
         return response.json();
       })
       .then((data) => {
+        setEstaCargando(false);
         switch (data.status) {
           case 500:
             onOpen();
@@ -182,6 +186,7 @@ function CrearUsuario() {
                 isDisabled={
                   nombreVacia || usuarioVacia || tipoVacia || passwordVacia
                 }
+                isLoading={estaCargando}
               >
                 Crear usuario
               </Button>

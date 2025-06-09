@@ -18,6 +18,7 @@ function EditarPassword() {
 
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
+  const [estaCargando, setEstaCargando] = useState(false);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -33,6 +34,7 @@ function EditarPassword() {
 
   function enviarDatos(ev) {
     ev.preventDefault();
+    setEstaCargando(true);
 
     fetch(`${apiURL}/CambiarPassword`, {
       method: "PATCH",
@@ -49,6 +51,7 @@ function EditarPassword() {
         return response.json();
       })
       .then((data) => {
+        setEstaCargando(false);
         switch (data.status) {
           case 200:
             onOpen();
@@ -138,6 +141,7 @@ function EditarPassword() {
                   verificaVacio(valorPassword2) ||
                   valorPassword.length < 6
                 }
+                isLoading={estaCargando}
               >
                 Editar contraseña
               </Button>
