@@ -10,6 +10,7 @@ import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
+import verificaAdmin from "../utils/verificaAdmin";
 import ModalComp from "../components/ModalComp";
 
 function EditarPassword() {
@@ -90,6 +91,7 @@ function EditarPassword() {
   }
 
   useEffect(() => {
+    verificaAdmin(navigate);
     obtenerUsuarios();
   }, []);
 
