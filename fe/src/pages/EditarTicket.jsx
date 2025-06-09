@@ -11,7 +11,6 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
-import obtenerValorSet from "../utils/obtenerValorSet";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
 
 function EditarTicket() {
@@ -115,8 +114,6 @@ function EditarTicket() {
     ev.preventDefault();
     setEstaCargando(true);
 
-    const tipoID = obtenerValorSet(valorTipo);
-    const estatusID = obtenerValorSet(valorEstatus);
     fetch(`${apiURL}/ActualizarTicket`, {
       method: "PATCH",
       headers: {
@@ -125,8 +122,8 @@ function EditarTicket() {
       },
       body: JSON.stringify({
         id: ticket.id,
-        tipo_ticket_id: tipoID,
-        estatus_ticket_id: estatusID,
+        tipo_ticket_id: Array.from(valorTipo, Number),
+        estatus_ticket_id: Array.from(valorEstatus, Number),
       }),
     })
       .then((response) => {
