@@ -4,7 +4,7 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
-import verificaDatos from "../utils/verificaDatos";
+import eliminarEspacios from "../utils/eliminarEspacios";
 import verificaVacio from "../utils/verificaVacio";
 
 function Login() {
@@ -84,7 +84,7 @@ function Login() {
             Inicia sesión como usuario administrador
           </h2>
           <Input
-            onChange={(ev) => verificaDatos(ev, setValorUsuario, 0)}
+            onChange={(ev) => eliminarEspacios(ev, setValorUsuario)}
             value={valorUsuario}
             label="Usuario"
             type="text"
@@ -93,7 +93,7 @@ function Login() {
             isRequired
           />
           <Input
-            onChange={(ev) => verificaDatos(ev, setValorPasswd, 0)}
+            onChange={(ev) => eliminarEspacios(ev, setValorPasswd)}
             value={valorPasswd}
             label="Contraseña"
             type={esVisible ? "text" : "password"}

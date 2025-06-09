@@ -14,7 +14,7 @@ import ModalComp from "../components/ModalComp";
 import verificaVacio from "../utils/verificaVacio";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
 import verificaAdmin from "../utils/verificaAdmin";
-import verificaDatos from "../utils/verificaDatos";
+import eliminarEspacios from "../utils/eliminarEspacios";
 
 function CrearUsuario() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -147,7 +147,7 @@ function CrearUsuario() {
                 label="Nombre de usuario"
                 isRequired
                 variant="flat"
-                onChange={(ev) => setValorUsuario(ev.target.value)}
+                onChange={(ev) => eliminarEspacios(ev, setValorUsuario)}
                 value={valorUsuario}
               />
               <Select
@@ -167,7 +167,7 @@ function CrearUsuario() {
                 label="Contraseña"
                 isRequired
                 variant="flat"
-                onChange={(ev) => verificaDatos(ev, setValorPassword, 0)}
+                onChange={(ev) => eliminarEspacios(ev, setValorPassword)}
                 value={valorPassword}
                 type="password"
               />

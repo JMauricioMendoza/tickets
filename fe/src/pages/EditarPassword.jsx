@@ -5,7 +5,7 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import verificaVacio from "../utils/verificaVacio";
-import verificaDatos from "../utils/verificaDatos";
+import eliminarEspacios from "../utils/eliminarEspacios";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
 
 function EditarPassword() {
@@ -94,7 +94,7 @@ function EditarPassword() {
                 label="Nueva contraseña"
                 isRequired
                 variant="flat"
-                onChange={(ev) => verificaDatos(ev, setValorPassword, 0)}
+                onChange={(ev) => eliminarEspacios(ev, setValorPassword)}
                 value={valorPassword}
                 type={esPasswordVisible ? "text" : "password"}
                 errorMessage="La contraseña debe tener al menos 6 caracteres"
@@ -115,7 +115,7 @@ function EditarPassword() {
                 label="Confirmar contraseña"
                 isRequired
                 variant="flat"
-                onChange={(ev) => verificaDatos(ev, setValorPassword2, 0)}
+                onChange={(ev) => eliminarEspacios(ev, setValorPassword2)}
                 value={valorPassword2}
                 type={esPassword2Visible ? "text" : "password"}
                 isInvalid={!passwordsIguales && !verificaVacio(valorPassword2)}

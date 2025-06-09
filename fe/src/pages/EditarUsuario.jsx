@@ -14,6 +14,7 @@ import ModalComp from "../components/ModalComp";
 import verificaVacio from "../utils/verificaVacio";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
 import verificaAdmin from "../utils/verificaAdmin";
+import eliminarEspacios from "../utils/eliminarEspacios";
 
 function EditarUsuario() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -184,7 +185,7 @@ function EditarUsuario() {
                 label="Nombre de usuario"
                 isRequired
                 variant="flat"
-                onChange={(ev) => setValorUsuario(ev.target.value)}
+                onChange={(ev) => eliminarEspacios(ev, setValorUsuario)}
                 value={valorUsuario}
               />
               <Select
