@@ -6,6 +6,7 @@ import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import eliminarEspacios from "../utils/eliminarEspacios";
 import verificaVacio from "../utils/verificaVacio";
+import enviarDatos from "../utils/enviarDatos";
 
 function Login() {
   const [valorUsuario, setValorUsuario] = useState("");
@@ -22,48 +23,33 @@ function Login() {
 
   const navigate = useNavigate();
 
-  const apiURL = process.env.REACT_APP_API_URL;
-
-  function enviarDatos(ev) {
-    ev.preventDefault();
-    setEstaCargando(true);
-
-    fetch(`${apiURL}/IniciarSesion`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+  const iniciaSesion = (ev) => {
+    enviarDatos({
+      ev,
+      url: "/IniciarSesion",
+      metodo: "POST",
+      datos: {
         usuario: valorUsuario,
         password: valorPasswd,
-      }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setEstaCargando(false);
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            sessionStorage.setItem("token", data.token);
-            sessionStorage.setItem("admin", data.administrador);
-            navigate("/dashboard");
-            break;
-          case 400:
-          case 401:
-            onOpen();
-            setVarianteModal("advertencia");
-            setMensajeModal(data.mensaje);
-            break;
-          default:
-            break;
-        }
-      });
-  }
+      },
+      usarToken: false,
+      onSuccess: (data) => {
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("admin", data.administrador);
+        navigate("/dashboard");
+      },
+      onUnauthorized: (data) => {
+        onOpen();
+        setVarianteModal("advertencia");
+        setMensajeModal(data.mensaje);
+      },
+      setEstaCargando,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  };
 
   useEffect(() => {
     setUsuarioVacio(verificaVacio(valorUsuario));
@@ -78,7 +64,7 @@ function Login() {
 
   return (
     <Layout>
-      <Form onSubmit={(ev) => enviarDatos(ev)}>
+      <Form onSubmit={iniciaSesion}>
         <div className="flex items-center justify-center flex-col gap-12 w-[400px]">
           <h2 className="text-l text-center font-semibold">
             Inicia sesión como usuario administrador

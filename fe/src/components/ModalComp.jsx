@@ -66,7 +66,7 @@ function ModalComp({
               </div>
             </ModalHeader>
             <ModalBody>
-              <p>{variant === "error" ? "Error en el servidor." : mensaje}</p>
+              <p>{mensaje}</p>
             </ModalBody>
             <ModalFooter>
               <Button

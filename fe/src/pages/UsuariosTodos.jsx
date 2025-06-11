@@ -93,12 +93,10 @@ function UsuariosTodos() {
           </div>
           <TablaUsuarios
             usuariosLista={usuariosLista}
-            apiURL={apiURL}
             onOpen={onOpen}
             setVarianteModal={setVarianteModal}
             setMensajeModal={setMensajeModal}
             navigate={navigate}
-            forzarCierreSesion={forzarCierreSesion}
             usuarioAdminID={usuario?.usuarioId || null}
           />
         </div>

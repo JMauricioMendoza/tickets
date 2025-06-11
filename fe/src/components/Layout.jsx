@@ -97,7 +97,6 @@ function Encabezado({
             onOpenChange={onOpenChange}
             varianteModal={varianteModal}
             mensajeModal={mensajeModal}
-            apiURL={apiURL}
             navigate={navigate}
             forzarCierreSesion={forzarCierreSesion}
           />

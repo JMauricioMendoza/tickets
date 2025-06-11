@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useState } from "react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -8,40 +8,32 @@ import {
   DropdownSection,
 } from "@heroui/react";
 import { FaUserCircle } from "react-icons/fa";
+import enviarDatos from "../utils/enviarDatos";
 
 function DropdownComp({
   usuario,
   onOpen,
   setVarianteModal,
   setMensajeModal,
-  apiURL,
   navigate,
   forzarCierreSesion,
 }) {
-  const CierraSesion = useCallback(() => {
-    fetch(`${apiURL}/CerrarSesion/${usuario.usuarioId}`, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            forzarCierreSesion(navigate);
-            break;
-          case 400:
-            onOpen();
-            setVarianteModal("advertencia");
-            setMensajeModal(data.mensaje);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [usuario.usuarioId, onOpen]);
+  const [estaCargando, setEstaCargando] = useState(false);
+
+  const cierraSesion = () => {
+    enviarDatos({
+      url: `/CerrarSesion/${usuario.usuarioId}`,
+      metodo: "DELETE",
+      usarToken: false,
+      onSuccess: () => {
+        forzarCierreSesion(navigate);
+      },
+      setEstaCargando,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  };
 
   return (
     <Dropdown>
@@ -70,7 +62,8 @@ function DropdownComp({
           key="delete"
           className="text-danger"
           color="danger"
-          onPress={CierraSesion}
+          onPress={cierraSesion}
+          isDisabled={estaCargando}
         >
           Cerrar sesión
         </DropdownItem>

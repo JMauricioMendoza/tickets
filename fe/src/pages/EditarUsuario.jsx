@@ -15,6 +15,7 @@ import verificaVacio from "../utils/verificaVacio";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
 import verificaAdmin from "../utils/verificaAdmin";
 import eliminarEspacios from "../utils/eliminarEspacios";
+import enviarDatos from "../utils/enviarDatos";
 
 function EditarUsuario() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -89,52 +90,25 @@ function EditarUsuario() {
       });
   }, [onOpen]);
 
-  function enviarDatos(ev) {
-    ev.preventDefault();
-    setEstaCargando(true);
-
-    fetch(`${apiURL}/ActualizarUsuario`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({
+  const editaUsuario = (ev) => {
+    enviarDatos({
+      ev,
+      url: "/ActualizarUsuario",
+      metodo: "PATCH",
+      datos: {
         id: datosUsuario.id,
         nombre: valorNombre,
         usuario: valorUsuario,
         administrador: valorSwitch,
         tipo_ticket_id: Array.from(valorTipo, Number),
-      }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setEstaCargando(false);
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            onOpen();
-            setVarianteModal("correcto");
-            setMensajeModal(data.mensaje);
-            break;
-          case 400:
-            onOpen();
-            setVarianteModal("advertencia");
-            setMensajeModal(data.mensaje);
-            break;
-          case 401:
-            forzarCierreSesion(navigate);
-            break;
-          default:
-            break;
-        }
-      });
-  }
+      },
+      setEstaCargando,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  };
 
   useEffect(() => {
     verificaAdmin(navigate);
@@ -168,7 +142,7 @@ function EditarUsuario() {
         textoBotonRegresar="Lista de usuarios"
         rutaBotonRegresar="/usuarios-todos"
       >
-        <Form className="w-full" onSubmit={(ev) => enviarDatos(ev)}>
+        <Form className="w-full" onSubmit={editaUsuario}>
           <div className="flex flex-col gap-9 w-full">
             <h2 className="text-institucional text-2xl font-semibold">
               Editar usuario

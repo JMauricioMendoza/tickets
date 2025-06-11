@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
+import enviarDatos from "../utils/enviarDatos";
 
 function EditarTicket() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -110,47 +111,23 @@ function EditarTicket() {
       });
   }, [onOpen]);
 
-  function enviarDatos(ev) {
-    ev.preventDefault();
-    setEstaCargando(true);
-
-    fetch(`${apiURL}/ActualizarTicket`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+  const editaTicket = (ev) => {
+    enviarDatos({
+      ev,
+      url: "/ActualizarTicket",
+      metodo: "PATCH",
+      datos: {
         id: ticket.id,
-        tipo_ticket_id: Array.from(valorTipo, Number),
-        estatus_ticket_id: Array.from(valorEstatus, Number),
-      }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setEstaCargando(false);
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            onOpen();
-            setVarianteModal("correcto");
-            setMensajeModal(data.mensaje);
-            break;
-          case 400:
-            onOpen();
-            setVarianteModal("advertencia");
-            setMensajeModal(data.mensaje);
-            break;
-          default:
-            break;
-        }
-      });
-  }
+        tipo_ticket_id: Number(Array.from(valorTipo)[0]),
+        estatus_ticket_id: Number(Array.from(valorEstatus)[0]),
+      },
+      setEstaCargando,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  };
 
   useEffect(() => {
     ObtenerTipoTickets();
@@ -178,7 +155,7 @@ function EditarTicket() {
         textoBotonRegresar="Lista de tickets"
         rutaBotonRegresar="/tickets-todos"
       >
-        <Form className="w-full" onSubmit={(ev) => enviarDatos(ev)}>
+        <Form className="w-full" onSubmit={editaTicket}>
           {ticket && tipoTickets && estatusTickets ? (
             <div className="flex flex-col gap-9 w-full">
               <h2 className="text-institucional text-2xl font-semibold">

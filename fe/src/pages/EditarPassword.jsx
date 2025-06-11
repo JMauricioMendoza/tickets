@@ -6,7 +6,7 @@ import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import verificaVacio from "../utils/verificaVacio";
 import eliminarEspacios from "../utils/eliminarEspacios";
-import forzarCierreSesion from "../utils/forzarCierreSesion";
+import enviarDatos from "../utils/enviarDatos";
 
 function EditarPassword() {
   const [valorPassword, setValorPassword] = useState("");
@@ -22,8 +22,6 @@ function EditarPassword() {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const apiURL = process.env.REACT_APP_API_URL;
-
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = location.state || {};
@@ -32,49 +30,19 @@ function EditarPassword() {
     setPasswordsIguales(valorPassword === valorPassword2);
   }, [valorPassword, valorPassword2]);
 
-  function enviarDatos(ev) {
-    ev.preventDefault();
-    setEstaCargando(true);
-
-    fetch(`${apiURL}/CambiarPassword`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({
-        id,
-        password: valorPassword,
-      }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setEstaCargando(false);
-        switch (data.status) {
-          case 200:
-            onOpen();
-            setVarianteModal("correcto");
-            setMensajeModal(data.mensaje);
-            break;
-          case 400:
-            onOpen();
-            setVarianteModal("advertencia");
-            setMensajeModal(data.mensaje);
-            break;
-          case 401:
-            forzarCierreSesion(navigate);
-            break;
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          default:
-            break;
-        }
-      });
-  }
+  const editaPassword = (ev) => {
+    enviarDatos({
+      ev,
+      url: "/CambiarPassword",
+      metodo: "PATCH",
+      datos: { id, password: valorPassword },
+      setEstaCargando,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  };
 
   return (
     <>
@@ -84,7 +52,7 @@ function EditarPassword() {
         textoBotonRegresar="Menú principal"
         rutaBotonRegresar="/dashboard"
       >
-        <Form className="w-full" onSubmit={(ev) => enviarDatos(ev)}>
+        <Form className="w-full" onSubmit={editaPassword}>
           <div className="flex flex-col gap-9 w-full">
             <h2 className="text-institucional text-2xl font-semibold">
               Editar contraseña

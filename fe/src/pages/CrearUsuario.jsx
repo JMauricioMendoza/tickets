@@ -12,9 +12,9 @@ import {
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import verificaVacio from "../utils/verificaVacio";
-import forzarCierreSesion from "../utils/forzarCierreSesion";
 import verificaAdmin from "../utils/verificaAdmin";
 import eliminarEspacios from "../utils/eliminarEspacios";
+import enviarDatos from "../utils/enviarDatos";
 
 function CrearUsuario() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -42,53 +42,25 @@ function CrearUsuario() {
 
   const apiURL = process.env.REACT_APP_API_URL;
 
-  function enviarDatos(ev) {
-    ev.preventDefault();
-    estaCargando(true);
-
-    fetch(`${apiURL}/CrearUsuario`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({
+  const creaUsuario = (ev) => {
+    enviarDatos({
+      ev,
+      url: "/CrearUsuario",
+      metodo: "POST",
+      datos: {
         nombre: valorNombre,
         password: valorPassword,
         usuario: valorUsuario,
         administrador: valorSwitch,
         tipo_ticket_id: Array.from(valorTipo, Number),
-      }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setEstaCargando(false);
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 201:
-            onOpen();
-            setVarianteModal("correcto");
-            setMensajeModal(data.mensaje);
-            break;
-          case 400:
-          case 409:
-            onOpen();
-            setVarianteModal("advertencia");
-            setMensajeModal(data.mensaje);
-            break;
-          case 401:
-            forzarCierreSesion(navigate);
-            break;
-          default:
-            break;
-        }
-      });
-  }
+      },
+      setEstaCargando,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  };
 
   const ObtenerTipoTickets = useCallback(() => {
     fetch(`${apiURL}/ObtenerTipoTicketsActivos`, {
@@ -130,7 +102,7 @@ function CrearUsuario() {
         textoBotonRegresar="Lista de usuarios"
         rutaBotonRegresar="/usuarios-todos"
       >
-        <Form className="w-full" onSubmit={(ev) => enviarDatos(ev)}>
+        <Form className="w-full" onSubmit={creaUsuario}>
           <div className="flex flex-col gap-9 w-full">
             <h2 className="text-institucional text-2xl font-semibold">
               Crear un usuario

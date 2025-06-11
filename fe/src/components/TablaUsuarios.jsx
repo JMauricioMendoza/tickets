@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -11,6 +12,7 @@ import {
   Tooltip,
 } from "@heroui/react";
 import { FaPen, FaKey, FaTrashAlt } from "react-icons/fa";
+import enviarDatos from "../utils/enviarDatos";
 
 const columns = [
   {
@@ -33,52 +35,26 @@ const columns = [
 
 function TablaUsuarios({
   usuariosLista,
-  apiURL,
   onOpen,
   setVarianteModal,
   setMensajeModal,
   navigate,
-  forzarCierreSesion,
   usuarioAdminID,
 }) {
-  function inhabilitarUsuario(usuarioID) {
-    fetch(`${apiURL}/InhabilitarUsuario`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: usuarioID,
-      }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            onOpen();
-            setVarianteModal("correcto");
-            setMensajeModal(data.mensaje);
-            break;
-          case 400:
-            onOpen();
-            setVarianteModal("advertencia");
-            setMensajeModal(data.mensaje);
-            break;
-          case 401:
-            forzarCierreSesion(navigate);
-            break;
-          default:
-            break;
-        }
-      });
-  }
+  const [estaCargando, setEstaCargando] = useState(false);
+
+  const inhabilitaUsuario = (usuarioID) => {
+    enviarDatos({
+      url: `/InhabilitarUsuario`,
+      metodo: "PATCH",
+      datos: { id: usuarioID },
+      setEstaCargando,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  };
 
   const renderCell = (item, columnKey) => {
     if (columnKey === "administrador") {
@@ -130,8 +106,9 @@ function TablaUsuarios({
               variant="light"
               color={item.id === usuarioAdminID ? "default" : "danger"}
               isIconOnly
-              onPress={() => inhabilitarUsuario(item.id)}
+              onPress={() => inhabilitaUsuario(item.id)}
               isDisabled={item.id === usuarioAdminID}
+              isLoading={estaCargando}
             >
               <FaTrashAlt />
             </Button>

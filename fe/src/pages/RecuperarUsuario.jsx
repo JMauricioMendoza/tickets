@@ -12,8 +12,9 @@ import Layout from "../components/Layout";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
 import verificaAdmin from "../utils/verificaAdmin";
 import ModalComp from "../components/ModalComp";
+import enviarDatos from "../utils/enviarDatos";
 
-function EditarPassword() {
+function RecuperarUsuario() {
   const [usuario, setUsuario] = useState(null);
   const [listaUsuarios, setListaUsuarios] = useState(new Set());
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
@@ -54,41 +55,19 @@ function EditarPassword() {
       });
   }
 
-  function enviarDatos(ev) {
-    ev.preventDefault();
-    setEstaCargando(true);
-
-    const id = Number(usuarioSeleccionado);
-
-    fetch(`${apiURL}/HabilitarUsuario`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({ id }),
-    }).then(async (response) => {
-      setEstaCargando(false);
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        if (response.status === 401) {
-          forzarCierreSesion(navigate);
-        } else if (response.status === 400) {
-          onOpen();
-          setVarianteModal("advertencia");
-          setMensajeModal(data.mensaje || "Ocurrió un error");
-        } else if (response.status === 500) {
-          onOpen();
-          setVarianteModal("error");
-          setMensajeModal(data.mensaje || "Error del servidor");
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      onOpen();
-      setVarianteModal("correcto");
-      setMensajeModal(data.mensaje);
+  const recuperaUsuario = (ev) => {
+    enviarDatos({
+      ev,
+      url: "/HabilitarUsuario",
+      metodo: "PATCH",
+      datos: { id: Number(usuarioSeleccionado) },
+      setEstaCargando,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
     });
-  }
+  };
 
   useEffect(() => {
     verificaAdmin(navigate);
@@ -104,7 +83,7 @@ function EditarPassword() {
         rutaBotonRegresar="/usuarios-todos"
       >
         {listaUsuarios.length > 0 && (
-          <Form className="w-full" onSubmit={(ev) => enviarDatos(ev)}>
+          <Form className="w-full" onSubmit={recuperaUsuario}>
             <div className="flex gap-4 w-full">
               <Autocomplete
                 label="Buscar usuario para recuperación de acceso"
@@ -149,4 +128,4 @@ function EditarPassword() {
   );
 }
 
-export default EditarPassword;
+export default RecuperarUsuario;
