@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -52,7 +51,6 @@ func IniciarSesion(c *gin.Context) {
 	}
 
 	token := uuid.NewString()
-	expiracion := time.Now().Add(1 * time.Hour)
 
 	_, err = tx.Exec("DELETE FROM sesion WHERE usuario_id = $1", usuario.ID)
 	if err != nil {
@@ -61,7 +59,7 @@ func IniciarSesion(c *gin.Context) {
 		return
 	}
 
-	_, err = tx.Exec("INSERT INTO sesion (usuario_id, token, expira_en) VALUES ($1, $2, $3)", usuario.ID, token, expiracion)
+	_, err = tx.Exec("INSERT INTO sesion (usuario_id, token, expira_en) VALUES ($1, $2, (SELECT now() + interval '1 hour'))", usuario.ID, token)
 	if err != nil {
 		_ = tx.Rollback()
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
