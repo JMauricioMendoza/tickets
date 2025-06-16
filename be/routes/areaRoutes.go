@@ -3,6 +3,7 @@ package routes
 import (
 	"backgo/database"
 	"backgo/models"
+	"backgo/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,7 @@ import (
 func ObtenerAreaActivos(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, nombre FROM area WHERE estatus IS TRUE ORDER BY nombre ASC")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -20,16 +21,16 @@ func ObtenerAreaActivos(c *gin.Context) {
 	for rows.Next() {
 		var area models.Area
 		if err := rows.Scan(&area.ID, &area.Nombre); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		areas = append(areas, area)
 	}
 
 	if err = rows.Err(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "areas": areas})
+	utils.RespuestaJSON(c, http.StatusOK, "Áreas obtenidas exitosamente", areas)
 }

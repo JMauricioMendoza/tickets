@@ -3,6 +3,7 @@ package routes
 import (
 	"backgo/database"
 	"backgo/models"
+	"backgo/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,7 @@ import (
 func ObtenerTipoTicketsActivos(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, nombre FROM tipo_ticket WHERE estatus IS TRUE")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -20,16 +21,16 @@ func ObtenerTipoTicketsActivos(c *gin.Context) {
 	for rows.Next() {
 		var tipoTicket models.TipoTicket
 		if err := rows.Scan(&tipoTicket.ID, &tipoTicket.Nombre); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		tipoTickets = append(tipoTickets, tipoTicket)
 	}
 
 	if err = rows.Err(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": err.Error()})
+		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "tipoTickets": tipoTickets})
+	utils.RespuestaJSON(c, http.StatusOK, "Tipo de tickets obtenidos correctamente.", tipoTickets)
 }

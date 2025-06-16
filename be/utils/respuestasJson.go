@@ -6,7 +6,6 @@ import (
 
 func RespuestaJSON(c *gin.Context, status int, mensaje string, data ...interface{}) {
 	resp := gin.H{
-		"status":  status,
 		"mensaje": mensaje,
 	}
 	if len(data) > 0 && data[0] != nil {

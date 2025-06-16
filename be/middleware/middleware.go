@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"backgo/database"
+	"backgo/utils"
 	"database/sql"
 	"net/http"
 
@@ -13,7 +14,7 @@ func AutenticacionMiddleware() gin.HandlerFunc {
 		token := c.GetHeader("Authorization")
 
 		if token == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "mensaje": "Token requerido"})
+			utils.RespuestaJSON(c, http.StatusUnauthorized, "Token requerido")
 			c.Abort()
 			return
 		}
@@ -32,7 +33,7 @@ func AutenticacionMiddleware() gin.HandlerFunc {
 		err := database.DB.QueryRow(query, token).Scan(&usuarioID)
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "mensaje": err.Error()})
+			utils.RespuestaJSON(c, http.StatusUnauthorized, err.Error())
 			c.Abort()
 			return
 		}
@@ -46,14 +47,14 @@ func AdministradorMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		usuarioIDRaw, existe := c.Get("usuario_id")
 		if !existe {
-			c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "mensaje": "No autenticado"})
+			utils.RespuestaJSON(c, http.StatusUnauthorized, "No autenticado")
 			c.Abort()
 			return
 		}
 
 		usuarioID, ok := usuarioIDRaw.(int)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "mensaje": "Error interno en el ID de usuario"})
+			utils.RespuestaJSON(c, http.StatusInternalServerError, "Error interno en el ID de usuario")
 			c.Abort()
 			return
 		}
@@ -63,23 +64,17 @@ func AdministradorMiddleware() gin.HandlerFunc {
 		err := database.DB.QueryRow(query, usuarioID).Scan(&esAdmin)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				c.JSON(http.StatusUnauthorized, gin.H{
-					"status":  http.StatusUnauthorized,
-					"mensaje": "No autorizado: usuario no encontrado o inactivo",
-				})
+				utils.RespuestaJSON(c, http.StatusUnauthorized, "No autorizado: usuario no encontrado o inactivo")
 				c.Abort()
 				return
 			}
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"mensaje": err.Error(),
-			})
+			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 			c.Abort()
 			return
 		}
 
 		if !esAdmin {
-			c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "mensaje": "Acceso restringido a administradores"})
+			utils.RespuestaJSON(c, http.StatusUnauthorized, "Acceso restringido a administradores")
 			c.Abort()
 			return
 		}
