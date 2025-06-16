@@ -34,8 +34,8 @@ function Login() {
       },
       usarToken: false,
       onSuccess: (data) => {
-        sessionStorage.setItem("token", data.token);
-        sessionStorage.setItem("admin", data.administrador);
+        sessionStorage.setItem("token", data.datos.token);
+        sessionStorage.setItem("admin", data.datos.administrador);
         navigate("/dashboard");
       },
       onUnauthorized: (data) => {

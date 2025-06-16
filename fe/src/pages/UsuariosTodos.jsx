@@ -6,7 +6,7 @@ import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import TablaUsuarios from "../components/TablaUsuarios";
 import verificaAdmin from "../utils/verificaAdmin";
-import forzarCierreSesion from "../utils/forzarCierreSesion";
+import obtenerDatos from "../utils/obtenerDatos";
 
 function UsuariosTodos() {
   const [usuario, setUsuario] = useState(null);
@@ -17,31 +17,14 @@ function UsuariosTodos() {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const apiURL = process.env.REACT_APP_API_URL;
-
   const navigate = useNavigate();
 
   function obtenerUsuariosLista() {
     setUsuariosLista([]);
 
-    fetch(`${apiURL}/ObtenerUsuariosActivos`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          if (response.status === 401) {
-            forzarCierreSesion(navigate);
-          } else if (response.status === 500) {
-            onOpen();
-            setVarianteModal("error");
-          }
-        }
-        return response.json();
-      })
-      .then((data) => {
+    obtenerDatos({
+      url: "/ObtenerUsuariosActivos",
+      onSuccess: (data) => {
         if (data.datos && data.datos.length > 0) {
           const usuariosTransformados = data.datos.map((item) => ({
             ...item,
@@ -51,7 +34,12 @@ function UsuariosTodos() {
           }));
           setUsuariosLista(usuariosTransformados);
         }
-      });
+      },
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
   }
 
   useEffect(() => {
@@ -97,7 +85,7 @@ function UsuariosTodos() {
             setVarianteModal={setVarianteModal}
             setMensajeModal={setMensajeModal}
             navigate={navigate}
-            usuarioAdminID={usuario?.usuarioId || null}
+            usuarioAdminID={usuario?.usuario_id || null}
           />
         </div>
       </Layout>

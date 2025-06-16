@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Input,
   Select,
@@ -11,8 +11,8 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
-import forzarCierreSesion from "../utils/forzarCierreSesion";
 import enviarDatos from "../utils/enviarDatos";
+import obtenerDatos from "../utils/obtenerDatos";
 
 function EditarTicket() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -33,83 +33,42 @@ function EditarTicket() {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const apiURL = process.env.REACT_APP_API_URL;
-
   const location = useLocation();
   const navigate = useNavigate();
   const { ticketID } = location.state || {};
 
-  const ObtenerTipoTickets = useCallback(() => {
-    fetch(`${apiURL}/ObtenerTipoTicketsActivos`, {
-      method: "GET",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setTipoTickets(data.tipoTickets);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [onOpen]);
+  function ObtenerTipoTickets() {
+    obtenerDatos({
+      url: "/ObtenerTipoTicketsActivos",
+      usarToken: false,
+      setDatos: setTipoTickets,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
-  const ObtenerEstatusTickets = useCallback(() => {
-    fetch(`${apiURL}/ObtenerEstatusTicketsActivos`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setEstatusTickets(data.estatusTickets);
-            break;
-          case 401:
-            forzarCierreSesion(navigate);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [onOpen]);
+  function ObtenerEstatusTickets() {
+    obtenerDatos({
+      url: "/ObtenerEstatusTicketsActivos",
+      setDatos: setEstatusTickets,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
-  const ObtenerTicket = useCallback(() => {
-    fetch(`${apiURL}/ObtenerTicketPorID/${ticketID}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setTicket(data.ticket);
-            break;
-          case 401:
-            forzarCierreSesion(navigate);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [onOpen]);
+  function ObtenerTicket() {
+    obtenerDatos({
+      url: `/ObtenerTicketPorID/${ticketID}`,
+      setDatos: setTicket,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
   const editaTicket = (ev) => {
     enviarDatos({
@@ -133,7 +92,7 @@ function EditarTicket() {
     ObtenerTipoTickets();
     ObtenerEstatusTickets();
     ObtenerTicket();
-  }, [ObtenerTipoTickets, ObtenerTicket, ObtenerEstatusTickets]);
+  }, []);
 
   useEffect(() => {
     setTipoVacia(!(valorTipo.size > 0));

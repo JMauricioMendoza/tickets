@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   Alert,
@@ -16,54 +16,40 @@ import {
 import { AiOutlineReload } from "react-icons/ai";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
-import forzarCierreSesion from "../utils/forzarCierreSesion";
+import obtenerDatos from "../utils/obtenerDatos";
 
 function TicketsTodos() {
   const [usuario, setUsuario] = useState(null);
   const [varianteModal, setVarianteModal] = useState("");
+  const [mensajeModal, setMensajeModal] = useState("");
   const [tickets, setTickets] = useState([]);
   const [ticketsFiltrados, setTicketsFiltrados] = useState([]);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const apiURL = process.env.REACT_APP_API_URL;
-
   const navigate = useNavigate();
 
-  const obtenerTickets = useCallback(() => {
+  function obtenerTickets() {
     setTickets([]);
 
     if (!usuario) return;
 
-    fetch(`${apiURL}/ObtenerTickets`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+    obtenerDatos({
+      url: "/ObtenerTickets",
+      onSuccess: (data) => {
+        setTickets(data.datos);
+        setTicketsFiltrados(data.datos ? data.datos : []);
       },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setTickets(data.tickets);
-            setTicketsFiltrados(data.tickets ? data.tickets : []);
-            break;
-          case 401:
-            forzarCierreSesion(navigate);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [usuario, onOpen]);
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
   useEffect(() => {
     obtenerTickets();
-  }, [usuario, obtenerTickets]);
+  }, [usuario]);
 
   return (
     <>
@@ -88,7 +74,7 @@ function TicketsTodos() {
               color="primary"
               variant="solid"
               startContent={<AiOutlineReload />}
-              onPress={obtenerTickets}
+              onPress={() => obtenerTickets()}
             >
               Actualizar lista
             </Button>
@@ -104,6 +90,7 @@ function TicketsTodos() {
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         variant={varianteModal}
+        mensaje={mensajeModal}
       />
     </>
   );

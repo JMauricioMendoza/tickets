@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Input,
@@ -15,6 +15,7 @@ import verificaVacio from "../utils/verificaVacio";
 import verificaAdmin from "../utils/verificaAdmin";
 import eliminarEspacios from "../utils/eliminarEspacios";
 import enviarDatos from "../utils/enviarDatos";
+import obtenerDatos from "../utils/obtenerDatos";
 
 function CrearUsuario() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -40,8 +41,6 @@ function CrearUsuario() {
 
   const navigate = useNavigate();
 
-  const apiURL = process.env.REACT_APP_API_URL;
-
   const creaUsuario = (ev) => {
     enviarDatos({
       ev,
@@ -62,25 +61,16 @@ function CrearUsuario() {
     });
   };
 
-  const ObtenerTipoTickets = useCallback(() => {
-    fetch(`${apiURL}/ObtenerTipoTicketsActivos`, {
-      method: "GET",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setTipoTickets(data.tipoTickets);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [onOpen]);
+  function ObtenerTipoTickets() {
+    obtenerDatos({
+      url: "/ObtenerTipoTicketsActivos",
+      usarToken: false,
+      setDatos: setTipoTickets,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
   useEffect(() => {
     verificaAdmin(navigate);

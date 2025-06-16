@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Input,
   Select,
@@ -12,6 +12,7 @@ import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import verificaVacio from "../utils/verificaVacio";
 import enviarDatos from "../utils/enviarDatos";
+import obtenerDatos from "../utils/obtenerDatos";
 
 function CrearTicket() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -35,47 +36,27 @@ function CrearTicket() {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const apiURL = process.env.REACT_APP_API_URL;
+  function ObtenerTipoTickets() {
+    obtenerDatos({
+      url: "/ObtenerTipoTicketsActivos",
+      usarToken: false,
+      setDatos: setTipoTickets,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
-  const ObtenerTipoTickets = useCallback(() => {
-    fetch(`${apiURL}/ObtenerTipoTicketsActivos`, {
-      method: "GET",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setTipoTickets(data.tipoTickets);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [onOpen]);
-
-  const ObtenerAreas = useCallback(() => {
-    fetch(`${apiURL}/ObtenerAreaActivos`, {
-      method: "GET",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setTipoAreas(data.areas);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [onOpen]);
+  function ObtenerAreas() {
+    obtenerDatos({
+      url: "/ObtenerAreaActivos",
+      usarToken: false,
+      setDatos: setTipoAreas,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
   const creaTicket = (ev) => {
     enviarDatos({
@@ -106,7 +87,7 @@ function CrearTicket() {
   useEffect(() => {
     ObtenerTipoTickets();
     ObtenerAreas();
-  }, [ObtenerTipoTickets, ObtenerAreas]);
+  }, []);
 
   useEffect(() => {
     setNombreVacia(verificaVacio(valorNombre));

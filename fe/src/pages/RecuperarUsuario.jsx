@@ -9,10 +9,10 @@ import {
 import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
-import forzarCierreSesion from "../utils/forzarCierreSesion";
 import verificaAdmin from "../utils/verificaAdmin";
 import ModalComp from "../components/ModalComp";
 import enviarDatos from "../utils/enviarDatos";
+import obtenerDatos from "../utils/obtenerDatos";
 
 function RecuperarUsuario() {
   const [usuario, setUsuario] = useState(null);
@@ -27,32 +27,15 @@ function RecuperarUsuario() {
 
   const navigate = useNavigate();
 
-  const apiURL = process.env.REACT_APP_API_URL;
-
   function obtenerUsuarios() {
-    fetch(`${apiURL}/ObtenerUsuariosInactivos`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setListaUsuarios(data.datos);
-            break;
-          case 401:
-            forzarCierreSesion(navigate);
-            break;
-          default:
-            break;
-        }
-      });
+    obtenerDatos({
+      url: "/ObtenerUsuariosInactivos",
+      setDatos: setListaUsuarios,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
   }
 
   const recuperaUsuario = (ev) => {

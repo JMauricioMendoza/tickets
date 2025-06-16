@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Input,
@@ -12,10 +12,10 @@ import {
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import verificaVacio from "../utils/verificaVacio";
-import forzarCierreSesion from "../utils/forzarCierreSesion";
 import verificaAdmin from "../utils/verificaAdmin";
 import eliminarEspacios from "../utils/eliminarEspacios";
 import enviarDatos from "../utils/enviarDatos";
+import obtenerDatos from "../utils/obtenerDatos";
 
 function EditarUsuario() {
   const [tipoTickets, setTipoTickets] = useState(null);
@@ -42,53 +42,27 @@ function EditarUsuario() {
   const navigate = useNavigate();
   const { id } = location.state || {};
 
-  const apiURL = process.env.REACT_APP_API_URL;
+  function ObtenerUsuario() {
+    obtenerDatos({
+      url: `/ObtenerUsuarioPorID/${id}`,
+      setDatos: setDatosUsuario,
+      navigate,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
-  const ObtenerUsuario = useCallback(() => {
-    fetch(`${apiURL}/ObtenerUsuarioPorID/${id}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setDatosUsuario(data.datos);
-            break;
-          case 401:
-            forzarCierreSesion(navigate);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [onOpen]);
-
-  const ObtenerTipoTickets = useCallback(() => {
-    fetch(`${apiURL}/ObtenerTipoTicketsActivos`, {
-      method: "GET",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setTipoTickets(data.tipoTickets);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [onOpen]);
+  function ObtenerTipoTickets() {
+    obtenerDatos({
+      url: "/ObtenerTipoTicketsActivos",
+      usarToken: false,
+      setDatos: setTipoTickets,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
   const editaUsuario = (ev) => {
     enviarDatos({

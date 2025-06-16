@@ -22,7 +22,7 @@ function DropdownComp({
 
   const cierraSesion = () => {
     enviarDatos({
-      url: `/CerrarSesion/${usuario.usuarioId}`,
+      url: `/CerrarSesion/${usuario.usuario_id}`,
       metodo: "DELETE",
       usarToken: false,
       onSuccess: () => {
@@ -51,7 +51,7 @@ function DropdownComp({
             key="password"
             onPress={() => {
               navigate("/editar-password", {
-                state: { id: usuario.usuarioId },
+                state: { id: usuario.usuario_id },
               });
             }}
           >

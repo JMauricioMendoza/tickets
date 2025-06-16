@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDisclosure, Button } from "@heroui/react";
 import { FaUserCircle, FaArrowLeft } from "react-icons/fa";
@@ -6,6 +6,7 @@ import DropdownComp from "./DropdownComp";
 import ModalComp from "./ModalComp";
 import LogoIceo from "../assets/img/logoIceo.png";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
+import obtenerDatos from "../utils/obtenerDatos";
 
 function Layout({
   children,
@@ -44,42 +45,21 @@ function Encabezado({
 
   const location = useLocation();
 
-  const apiURL = process.env.REACT_APP_API_URL;
-
-  const verificaSesion = useCallback(() => {
-    fetch(`${apiURL}/VerificaSesion`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-      },
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        switch (data.status) {
-          case 500:
-            onOpen();
-            setVarianteModal("error");
-            break;
-          case 200:
-            setUsuario({
-              nombre: data.nombre,
-              usuarioId: data.usuario_id,
-            });
-            break;
-          case 401:
-            forzarCierreSesion(navigate, location.pathname);
-            break;
-          default:
-            break;
-        }
-      });
-  }, [setUsuario]);
+  function verificaSesion() {
+    obtenerDatos({
+      url: "/VerificaSesion",
+      setDatos: setUsuario,
+      navigate,
+      pathname: location.pathname,
+      onOpen,
+      setVarianteModal,
+      setMensajeModal,
+    });
+  }
 
   useEffect(() => {
     if (location.pathname !== "/login") verificaSesion();
-  }, [location.pathname, verificaSesion]);
+  }, []);
 
   return (
     <header className="flex flex-col gap-6 pt-3 w-full">
