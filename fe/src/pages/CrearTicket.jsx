@@ -49,7 +49,7 @@ function CrearTicket() {
 
   function ObtenerAreas() {
     obtenerDatos({
-      url: "/ObtenerAreaActivos",
+      url: "/ObtenerAreasActivos",
       usarToken: false,
       setDatos: setTipoAreas,
       onOpen,

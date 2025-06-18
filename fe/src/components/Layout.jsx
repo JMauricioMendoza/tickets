@@ -17,7 +17,7 @@ function Layout({
 }) {
   return (
     <div className="flex items-start justify-center w-full min-h-screen bg-gray-200">
-      <div className="flex flex-col items-center justify-center gap-12 w-[1080px] bg-white rounded-xl px-12 pb-14">
+      <div className="flex flex-col items-center justify-center gap-12 w-[1080px] bg-white rounded-xl px-12 pb-14 shadow-xl">
         <Encabezado
           usuario={usuario}
           setUsuario={setUsuario}

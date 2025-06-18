@@ -36,7 +36,7 @@ function Dashboard() {
                 </HeroLink>
                 <HeroLink
                   as={RouterLink}
-                  to="/crear-ticket"
+                  to="/areas-todos"
                   className="font-medium"
                 >
                   Departamentos

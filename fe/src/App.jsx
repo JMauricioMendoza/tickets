@@ -16,6 +16,9 @@ import CrearUsuario from "./pages/CrearUsuario";
 import EditarUsuario from "./pages/EditarUsuario";
 import EditarPassword from "./pages/EditarPassword";
 import RecuperarUsuario from "./pages/RecuperarUsuario";
+import AreasTodos from "./pages/AreasTodos";
+import CrearArea from "./pages/CrearArea";
+import EditarArea from "./pages/EditarArea";
 
 function App() {
   return (
@@ -34,6 +37,9 @@ function App() {
             <Route path="/editar-usuario" element={<EditarUsuario />} />
             <Route path="/editar-password" element={<EditarPassword />} />
             <Route path="/recuperar-usuario" element={<RecuperarUsuario />} />
+            <Route path="/areas-todos" element={<AreasTodos />} />
+            <Route path="/crear-area" element={<CrearArea />} />
+            <Route path="/editar-area" element={<EditarArea />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/crear-ticket" />} />
