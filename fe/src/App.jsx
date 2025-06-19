@@ -9,14 +9,14 @@ import Login from "./pages/Login";
 import CrearTicket from "./pages/CrearTicket";
 import EditarTicket from "./pages/EditarTicket";
 import Dashboard from "./pages/Dashboard";
-import TicketsTodos from "./pages/TicketsTodos";
-import UsuariosTodos from "./pages/UsuariosTodos";
+import TicketsTodos from "./pages/TodosTickets";
+import UsuariosTodos from "./pages/TodosUsuarios";
 import RutaProtegida from "./utils/RutaProtegida";
 import CrearUsuario from "./pages/CrearUsuario";
 import EditarUsuario from "./pages/EditarUsuario";
 import EditarPassword from "./pages/EditarPassword";
 import RecuperarUsuario from "./pages/RecuperarUsuario";
-import AreasTodos from "./pages/AreasTodos";
+import AreasTodos from "./pages/TodosAreas";
 import CrearArea from "./pages/CrearArea";
 import EditarArea from "./pages/EditarArea";
 
