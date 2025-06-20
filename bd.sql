@@ -32,6 +32,17 @@ START 1
 CACHE 1;
 
 -- ----------------------------
+-- Sequence structure for logs_estatus_ticket_id_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."logs_estatus_ticket_id_seq";
+CREATE SEQUENCE "public"."logs_estatus_ticket_id_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
+
+-- ----------------------------
 -- Sequence structure for logs_sesion_id_seq
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."logs_sesion_id_seq";
@@ -116,10 +127,10 @@ CREATE TABLE "public"."area" (
 DROP TABLE IF EXISTS "public"."estatus_ticket";
 CREATE TABLE "public"."estatus_ticket" (
   "id" int4 NOT NULL DEFAULT nextval('estatus_ticket_id_seq'::regclass),
-  "nombre" varchar(255) COLLATE "pg_catalog"."default",
+  "nombre" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "estatus" bool NOT NULL DEFAULT true,
   "creado_en" timestamp(0) NOT NULL DEFAULT now(),
-  "actualizado_en" timestamp(0) NOT NULL DEFAULT now()
+  "actualizado_en" timestamp(0)
 )
 ;
 
@@ -130,6 +141,19 @@ DROP TABLE IF EXISTS "public"."logs_area";
 CREATE TABLE "public"."logs_area" (
   "id" int4 NOT NULL DEFAULT nextval('logs_area_id_seq'::regclass),
   "area_id" int4 NOT NULL,
+  "usuario_id" int4 NOT NULL,
+  "accion" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
+  "creado_en" timestamp(6) NOT NULL DEFAULT now()
+)
+;
+
+-- ----------------------------
+-- Table structure for logs_estatus_ticket
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."logs_estatus_ticket";
+CREATE TABLE "public"."logs_estatus_ticket" (
+  "id" int4 NOT NULL DEFAULT nextval('logs_estatus_ticket_id_seq'::regclass),
+  "estatus_ticket_id" int4 NOT NULL,
   "usuario_id" int4 NOT NULL,
   "accion" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
   "creado_en" timestamp(6) NOT NULL DEFAULT now()
@@ -268,6 +292,13 @@ SELECT setval('"public"."logs_area_id_seq"', 1, true);
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
+ALTER SEQUENCE "public"."logs_estatus_ticket_id_seq"
+OWNED BY "public"."logs_estatus_ticket"."id";
+SELECT setval('"public"."logs_estatus_ticket_id_seq"', 1, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
 ALTER SEQUENCE "public"."logs_sesion_id_seq"
 OWNED BY "public"."logs_sesion"."id";
 SELECT setval('"public"."logs_sesion_id_seq"', 1, true);
@@ -323,6 +354,11 @@ ALTER TABLE "public"."estatus_ticket" ADD CONSTRAINT "estatus_ticket_pkey" PRIMA
 ALTER TABLE "public"."logs_area" ADD CONSTRAINT "logs_area_pkey" PRIMARY KEY ("id");
 
 -- ----------------------------
+-- Primary Key structure for table logs_estatus_ticket
+-- ----------------------------
+ALTER TABLE "public"."logs_estatus_ticket" ADD CONSTRAINT "logs_estatus_ticket_pkey" PRIMARY KEY ("id");
+
+-- ----------------------------
 -- Primary Key structure for table logs_sesion
 -- ----------------------------
 ALTER TABLE "public"."logs_sesion" ADD CONSTRAINT "logs_sesion_pkey" PRIMARY KEY ("id");
@@ -367,6 +403,12 @@ ALTER TABLE "public"."usuario_tipo_ticket" ADD CONSTRAINT "usuario_tipo_ticket_p
 -- ----------------------------
 ALTER TABLE "public"."logs_area" ADD CONSTRAINT "logs_area_area_id_fkey" FOREIGN KEY ("area_id") REFERENCES "public"."area" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE "public"."logs_area" ADD CONSTRAINT "logs_area_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- ----------------------------
+-- Foreign Keys structure for table logs_estatus_ticket
+-- ----------------------------
+ALTER TABLE "public"."logs_estatus_ticket" ADD CONSTRAINT "logs_estatus_ticket_estatus_ticket_id_fkey" FOREIGN KEY ("estatus_ticket_id") REFERENCES "public"."estatus_ticket" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE "public"."logs_estatus_ticket" ADD CONSTRAINT "logs_estatus_ticket_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- ----------------------------
 -- Foreign Keys structure for table logs_sesion
