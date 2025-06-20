@@ -43,7 +43,7 @@ function Dashboard() {
                 </HeroLink>
                 <HeroLink
                   as={RouterLink}
-                  to="/crear-ticket"
+                  to="/estatus-todos"
                   className="font-medium"
                 >
                   Estatus de tickets

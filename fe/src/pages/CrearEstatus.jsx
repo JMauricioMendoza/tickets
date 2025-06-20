@@ -7,7 +7,7 @@ import verificaVacio from "../utils/verificaVacio";
 import verificaAdmin from "../utils/verificaAdmin";
 import enviarDatos from "../utils/enviarDatos";
 
-function CrearArea() {
+function CrearEstatus() {
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
   const [estaCargando, setEstaCargando] = useState(false);
@@ -22,10 +22,10 @@ function CrearArea() {
 
   const navigate = useNavigate();
 
-  const creaArea = (ev) => {
+  const creaEstatusTicket = (ev) => {
     enviarDatos({
       ev,
-      url: "/CrearArea",
+      url: "/CrearEstatusTicket",
       metodo: "POST",
       datos: {
         nombre: valorNombre,
@@ -51,17 +51,17 @@ function CrearArea() {
       <Layout
         usuario={usuario}
         setUsuario={setUsuario}
-        textoBotonRegresar="Lista de departamentos"
-        rutaBotonRegresar="/areas-todos"
+        textoBotonRegresar="Lista de estatus de ticket"
+        rutaBotonRegresar="/estatus-todos"
       >
-        <Form className="w-full" onSubmit={creaArea}>
+        <Form className="w-full" onSubmit={creaEstatusTicket}>
           <div className="flex flex-col gap-9 w-full">
             <h2 className="text-institucional text-2xl font-semibold">
-              Crear un departamento
+              Crear un estatus de ticket
             </h2>
             <div className="grid grid-cols-2 gap-x-9 gap-y-12">
               <Input
-                label="Nombre del departamento"
+                label="Nombre del estatus de ticket"
                 isRequired
                 variant="flat"
                 onChange={(ev) => setValorNombre(ev.target.value)}
@@ -75,7 +75,7 @@ function CrearArea() {
                 isDisabled={nombreVacia}
                 isLoading={estaCargando}
               >
-                Crear departamento
+                Crear estatus de ticket
               </Button>
             </div>
           </div>
@@ -87,11 +87,11 @@ function CrearArea() {
         variant={varianteModal}
         mensaje={mensajeModal}
         onAccept={
-          varianteModal === "correcto" ? () => navigate("/areas-todos") : null
+          varianteModal === "correcto" ? () => navigate("/estatus-todos") : null
         }
       />
     </>
   );
 }
 
-export default CrearArea;
+export default CrearEstatus;
