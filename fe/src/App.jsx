@@ -22,6 +22,9 @@ import EditarArea from "./pages/EditarArea";
 import EstatusTodos from "./pages/TodosEstatus";
 import EditarEstatus from "./pages/EditarEstatus";
 import CrearEstatus from "./pages/CrearEstatus";
+import TipoTicketsTodos from "./pages/TodosTiposTickets";
+import EditarTipoTicket from "./pages/EditarTipoTicket";
+import CrearTipoTicket from "./pages/CrearTipoTicket";
 
 function App() {
   return (
@@ -46,6 +49,9 @@ function App() {
             <Route path="/estatus-todos" element={<EstatusTodos />} />
             <Route path="/editar-estatus" element={<EditarEstatus />} />
             <Route path="/crear-estatus" element={<CrearEstatus />} />
+            <Route path="/tipo-tickets-todos" element={<TipoTicketsTodos />} />
+            <Route path="/editar-tipo-ticket" element={<EditarTipoTicket />} />
+            <Route path="/crear-tipo-ticket" element={<CrearTipoTicket />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/crear-ticket" />} />

@@ -50,7 +50,7 @@ function Dashboard() {
                 </HeroLink>
                 <HeroLink
                   as={RouterLink}
-                  to="/crear-ticket"
+                  to="/tipo-tickets-todos"
                   className="font-medium"
                 >
                   Áreas de soporte
