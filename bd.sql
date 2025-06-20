@@ -65,6 +65,17 @@ START 1
 CACHE 1;
 
 -- ----------------------------
+-- Sequence structure for logs_tipo_ticket_id_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."logs_tipo_ticket_id_seq";
+CREATE SEQUENCE "public"."logs_tipo_ticket_id_seq" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 2147483647
+START 1
+CACHE 1;
+
+-- ----------------------------
 -- Sequence structure for logs_usuario_id_seq
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."logs_usuario_id_seq";
@@ -186,6 +197,19 @@ CREATE TABLE "public"."logs_ticket" (
 ;
 
 -- ----------------------------
+-- Table structure for logs_tipo_ticket
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."logs_tipo_ticket";
+CREATE TABLE "public"."logs_tipo_ticket" (
+  "id" int4 NOT NULL DEFAULT nextval('logs_tipo_ticket_id_seq'::regclass),
+  "tipo_ticket_id" int4 NOT NULL,
+  "usuario_id" int4 NOT NULL,
+  "accion" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
+  "creado_en" timestamp(6) NOT NULL DEFAULT now()
+)
+;
+
+-- ----------------------------
 -- Table structure for logs_usuario
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."logs_usuario";
@@ -232,10 +256,10 @@ CREATE TABLE "public"."ticket" (
 DROP TABLE IF EXISTS "public"."tipo_ticket";
 CREATE TABLE "public"."tipo_ticket" (
   "id" int4 NOT NULL DEFAULT nextval('tipo_ticket_id_seq'::regclass),
-  "nombre" varchar(255) COLLATE "pg_catalog"."default",
-  "estatus" bool DEFAULT true,
+  "nombre" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
+  "estatus" bool NOT NULL DEFAULT true,
   "creado_en" timestamp(0) NOT NULL DEFAULT now(),
-  "actualizado_en" timestamp(0) NOT NULL DEFAULT now()
+  "actualizado_en" timestamp(0)
 )
 ;
 
@@ -273,70 +297,66 @@ CREATE TABLE "public"."usuario_tipo_ticket" (
 -- ----------------------------
 ALTER SEQUENCE "public"."area_id_seq"
 OWNED BY "public"."area"."id";
-SELECT setval('"public"."area_id_seq"', 1, false);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."estatus_ticket_id_seq"
 OWNED BY "public"."estatus_ticket"."id";
-SELECT setval('"public"."estatus_ticket_id_seq"', 1, false);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."logs_area_id_seq"
 OWNED BY "public"."logs_area"."id";
-SELECT setval('"public"."logs_area_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."logs_estatus_ticket_id_seq"
 OWNED BY "public"."logs_estatus_ticket"."id";
-SELECT setval('"public"."logs_estatus_ticket_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."logs_sesion_id_seq"
 OWNED BY "public"."logs_sesion"."id";
-SELECT setval('"public"."logs_sesion_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."logs_ticket_id_seq"
 OWNED BY "public"."logs_ticket"."id";
-SELECT setval('"public"."logs_ticket_id_seq"', 1, true);
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
+ALTER SEQUENCE "public"."logs_tipo_ticket_id_seq"
+OWNED BY "public"."logs_tipo_ticket"."id";
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."logs_usuario_id_seq"
 OWNED BY "public"."logs_usuario"."id";
-SELECT setval('"public"."logs_usuario_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."ticket_id_seq"
 OWNED BY "public"."ticket"."id";
-SELECT setval('"public"."ticket_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."tipo_ticket_id_seq"
 OWNED BY "public"."tipo_ticket"."id";
-SELECT setval('"public"."tipo_ticket_id_seq"', 1, true);
 
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
 ALTER SEQUENCE "public"."usuario_id_seq"
 OWNED BY "public"."usuario"."id";
-SELECT setval('"public"."usuario_id_seq"', 1, true);
 
 -- ----------------------------
 -- Primary Key structure for table area
@@ -367,6 +387,11 @@ ALTER TABLE "public"."logs_sesion" ADD CONSTRAINT "logs_sesion_pkey" PRIMARY KEY
 -- Primary Key structure for table logs_ticket
 -- ----------------------------
 ALTER TABLE "public"."logs_ticket" ADD CONSTRAINT "logs_ticket_pkey" PRIMARY KEY ("id");
+
+-- ----------------------------
+-- Primary Key structure for table logs_tipo_ticket
+-- ----------------------------
+ALTER TABLE "public"."logs_tipo_ticket" ADD CONSTRAINT "logs_tipo_ticket_pkey" PRIMARY KEY ("id");
 
 -- ----------------------------
 -- Primary Key structure for table logs_usuario
@@ -420,6 +445,12 @@ ALTER TABLE "public"."logs_sesion" ADD CONSTRAINT "logs_sesion_usuario_id_fkey" 
 -- ----------------------------
 ALTER TABLE "public"."logs_ticket" ADD CONSTRAINT "logs_ticket_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "public"."ticket" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE "public"."logs_ticket" ADD CONSTRAINT "logs_ticket_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- ----------------------------
+-- Foreign Keys structure for table logs_tipo_ticket
+-- ----------------------------
+ALTER TABLE "public"."logs_tipo_ticket" ADD CONSTRAINT "logs_tipo_ticket_tipo_ticket_id_fkey" FOREIGN KEY ("tipo_ticket_id") REFERENCES "public"."tipo_ticket" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE "public"."logs_tipo_ticket" ADD CONSTRAINT "logs_tipo_ticket_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario" ("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- ----------------------------
 -- Foreign Keys structure for table logs_usuario

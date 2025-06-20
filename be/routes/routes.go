@@ -27,7 +27,7 @@ func SetupRouter() *gin.Engine {
 	//Ticket
 	r.POST("/CrearTicket", CrearTicket)
 
-	// TipoTickets
+	// TipoTicket
 	r.GET("/ObtenerTipoTicketsActivos", ObtenerTipoTicketsActivos)
 
 	// Area
@@ -66,6 +66,12 @@ func SetupRouter() *gin.Engine {
 		auth.POST("/CrearArea", middleware.AdministradorMiddleware(), CrearArea)
 		auth.GET("/ObtenerAreaPorID/:id", middleware.AdministradorMiddleware(), ObtenerAreaPorID)
 		auth.PATCH("/ActualizarArea", middleware.AdministradorMiddleware(), ActualizarArea)
+
+		// TipoTicket
+		auth.GET("/ObtenerTipoTickets", middleware.AdministradorMiddleware(), ObtenerTipoTickets)
+		auth.GET("/ObtenerTipoTicketPorID/:id", middleware.AdministradorMiddleware(), ObtenerTipoTicketPorID)
+		auth.PATCH("/ActualizarTipoTicket", middleware.AdministradorMiddleware(), ActualizarTipoTicket)
+		auth.POST("/CrearTipoTicket", middleware.AdministradorMiddleware(), CrearTipoTicket)
 	}
 
 	return r
