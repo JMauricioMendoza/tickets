@@ -4,7 +4,7 @@ import { useDisclosure, Button } from "@heroui/react";
 import { FaPlusCircle } from "react-icons/fa";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
-import TablaUsuarios from "../components/TablaUsuarios";
+import Tabla from "../components/Tabla";
 import verificaAdmin from "../utils/verificaAdmin";
 import obtenerDatos from "../utils/obtenerDatos";
 
@@ -79,13 +79,16 @@ function UsuariosTodos() {
               Recuperar usuario eliminado
             </Button>
           </div>
-          <TablaUsuarios
-            usuariosLista={usuariosLista}
+          <Tabla
+            datosLista={usuariosLista}
+            navigate={navigate}
+            nombreDato="usuario"
+            urlEditar="/editar-usuario"
+            esUsuario
+            usuarioAdminID={usuario?.usuario_id || null}
             onOpen={onOpen}
             setVarianteModal={setVarianteModal}
             setMensajeModal={setMensajeModal}
-            navigate={navigate}
-            usuarioAdminID={usuario?.usuario_id || null}
           />
         </div>
       </Layout>

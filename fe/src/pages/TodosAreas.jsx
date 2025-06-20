@@ -4,7 +4,7 @@ import { useDisclosure, Button } from "@heroui/react";
 import { FaPlusCircle } from "react-icons/fa";
 import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
-import TablaAreas from "../components/TablaAreas";
+import Tabla from "../components/Tabla";
 import verificaAdmin from "../utils/verificaAdmin";
 import obtenerDatos from "../utils/obtenerDatos";
 
@@ -70,7 +70,12 @@ function AreasTodos() {
               Nuevo departamento
             </Button>
           </span>
-          <TablaAreas areasLista={areasLista} navigate={navigate} />
+          <Tabla
+            datosLista={areasLista}
+            navigate={navigate}
+            nombreDato="departamento"
+            urlEditar="/editar-area"
+          />
         </div>
       </Layout>
       <ModalComp
@@ -78,7 +83,6 @@ function AreasTodos() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
-        onAccept={varianteModal === "correcto" ? obtenerAreas : null}
       />
     </>
   );

@@ -20,6 +20,21 @@ const columns = [
     label: "NOMBRE",
   },
   {
+    key: "estatus",
+    label: "ESTATUS",
+  },
+  {
+    key: "acciones",
+    label: "ACCIONES",
+  },
+];
+
+const columnsUsuario = [
+  {
+    key: "nombre",
+    label: "NOMBRE",
+  },
+  {
     key: "usuario",
     label: "USUARIO",
   },
@@ -33,13 +48,16 @@ const columns = [
   },
 ];
 
-function TablaUsuarios({
-  usuariosLista,
+function Tabla({
+  datosLista,
+  navigate,
+  nombreDato,
+  urlEditar,
+  esUsuario = false,
+  usuarioAdminID,
   onOpen,
   setVarianteModal,
   setMensajeModal,
-  navigate,
-  usuarioAdminID,
 }) {
   const [estaCargando, setEstaCargando] = useState(false);
 
@@ -57,6 +75,16 @@ function TablaUsuarios({
   };
 
   const renderCell = (item, columnKey) => {
+    if (columnKey === "estatus") {
+      return (
+        <Chip
+          color={item.estatus === "Activo" ? "success" : "danger"}
+          variant="flat"
+        >
+          {item.estatus}
+        </Chip>
+      );
+    }
     if (columnKey === "administrador") {
       return (
         <Chip
@@ -69,17 +97,16 @@ function TablaUsuarios({
         </Chip>
       );
     }
-
     if (columnKey === "acciones") {
       return (
         <>
-          <Tooltip content="Editar usuario" closeDelay="0">
+          <Tooltip content={`Editar ${nombreDato}`} closeDelay="0">
             <Button
               variant="light"
               color="primary"
               isIconOnly
               onPress={() => {
-                navigate("/editar-usuario", {
+                navigate(`${urlEditar}`, {
                   state: { id: item.id },
                 });
               }}
@@ -87,32 +114,36 @@ function TablaUsuarios({
               <FaPen />
             </Button>
           </Tooltip>
-          <Tooltip content="Editar contraseña" closeDelay="0">
-            <Button
-              variant="light"
-              color="warning"
-              isIconOnly
-              onPress={() => {
-                navigate("/editar-password", {
-                  state: { id: item.id },
-                });
-              }}
-            >
-              <FaKey />
-            </Button>
-          </Tooltip>
-          <Tooltip content="Eliminar usuario" closeDelay="0">
-            <Button
-              variant="light"
-              color={item.id === usuarioAdminID ? "default" : "danger"}
-              isIconOnly
-              onPress={() => inhabilitaUsuario(item.id)}
-              isDisabled={item.id === usuarioAdminID}
-              isLoading={estaCargando}
-            >
-              <FaTrashAlt />
-            </Button>
-          </Tooltip>
+          {esUsuario && (
+            <>
+              <Tooltip content="Editar contraseña" closeDelay="0">
+                <Button
+                  variant="light"
+                  color="warning"
+                  isIconOnly
+                  onPress={() => {
+                    navigate("/editar-password", {
+                      state: { id: item.id },
+                    });
+                  }}
+                >
+                  <FaKey />
+                </Button>
+              </Tooltip>
+              <Tooltip content={`Eliminar ${nombreDato}`} closeDelay="0">
+                <Button
+                  variant="light"
+                  color={item.id === usuarioAdminID ? "default" : "danger"}
+                  isIconOnly
+                  onPress={() => inhabilitaUsuario(item.id)}
+                  isDisabled={item.id === usuarioAdminID}
+                  isLoading={estaCargando}
+                >
+                  <FaTrashAlt />
+                </Button>
+              </Tooltip>
+            </>
+          )}
         </>
       );
     }
@@ -121,13 +152,13 @@ function TablaUsuarios({
   };
 
   return (
-    <Table aria-label="Tabla de usuarios">
-      <TableHeader columns={columns}>
+    <Table aria-label={`Tabla de ${nombreDato}`}>
+      <TableHeader columns={esUsuario ? columnsUsuario : columns}>
         {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
       </TableHeader>
       <TableBody
-        items={usuariosLista}
-        emptyContent="No hay usuarios disponibles."
+        items={datosLista}
+        emptyContent={`No hay ${nombreDato}s disponibles.`}
       >
         {(item) => (
           <TableRow key={item.id}>
@@ -141,4 +172,4 @@ function TablaUsuarios({
   );
 }
 
-export default TablaUsuarios;
+export default Tabla;
