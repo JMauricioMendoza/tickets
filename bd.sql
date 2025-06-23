@@ -154,7 +154,7 @@ CREATE TABLE "public"."logs_area" (
   "area_id" int4 NOT NULL,
   "usuario_id" int4 NOT NULL,
   "accion" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
-  "creado_en" timestamp(6) NOT NULL DEFAULT now()
+  "creado_en" timestamp(0) NOT NULL DEFAULT now()
 )
 ;
 
@@ -167,7 +167,7 @@ CREATE TABLE "public"."logs_estatus_ticket" (
   "estatus_ticket_id" int4 NOT NULL,
   "usuario_id" int4 NOT NULL,
   "accion" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
-  "creado_en" timestamp(6) NOT NULL DEFAULT now()
+  "creado_en" timestamp(0) NOT NULL DEFAULT now()
 )
 ;
 
@@ -205,7 +205,7 @@ CREATE TABLE "public"."logs_tipo_ticket" (
   "tipo_ticket_id" int4 NOT NULL,
   "usuario_id" int4 NOT NULL,
   "accion" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
-  "creado_en" timestamp(6) NOT NULL DEFAULT now()
+  "creado_en" timestamp(0) NOT NULL DEFAULT now()
 )
 ;
 
@@ -244,7 +244,7 @@ CREATE TABLE "public"."ticket" (
   "descripcion" text COLLATE "pg_catalog"."default" NOT NULL,
   "estatus_ticket_id" int8 NOT NULL DEFAULT 1,
   "creado_en" timestamp(0) NOT NULL DEFAULT now(),
-  "actualizado_en" timestamp(0) NOT NULL DEFAULT now(),
+  "actualizado_en" timestamp(0),
   "creado_por" varchar(150) COLLATE "pg_catalog"."default" NOT NULL,
   "area_id" int8 NOT NULL
 )
@@ -287,8 +287,8 @@ CREATE TABLE "public"."usuario_tipo_ticket" (
   "usuario_id" int4 NOT NULL,
   "tipo_ticket_id" int4 NOT NULL,
   "estatus" bool NOT NULL DEFAULT true,
-  "creado_en" timestamp(6) NOT NULL DEFAULT now(),
-  "actualizado_en" timestamp(6)
+  "creado_en" timestamp(0) NOT NULL DEFAULT now(),
+  "actualizado_en" timestamp(0)
 )
 ;
 

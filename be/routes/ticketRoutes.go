@@ -272,7 +272,7 @@ func ActualizarTicket(c *gin.Context) {
 	}
 
 	if ticketNuevo.TipoTicketID != ticketActual.TipoTicketID {
-		updateQueryTipo := "UPDATE ticket SET tipo_ticket_id = $1 WHERE id = $2"
+		updateQueryTipo := "UPDATE ticket SET tipo_ticket_id = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryTipo, ticketNuevo.TipoTicketID, ticketNuevo.ID)
 		if err != nil {
 			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
@@ -288,7 +288,7 @@ func ActualizarTicket(c *gin.Context) {
 	}
 
 	if ticketNuevo.EstatusTicketID != ticketActual.EstatusTicketID {
-		updateQueryEstatus := "UPDATE ticket SET estatus_ticket_id = $1 WHERE id = $2"
+		updateQueryEstatus := "UPDATE ticket SET estatus_ticket_id = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryEstatus, ticketNuevo.EstatusTicketID, ticketNuevo.ID)
 		if err != nil {
 			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
