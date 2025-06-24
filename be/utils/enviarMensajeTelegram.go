@@ -9,9 +9,13 @@ import (
 	"time"
 )
 
+// EnviarMensajeTelegram envía un mensaje de texto al chat especificado usando la API de Telegram Bot.
+// Utiliza Markdown como parse_mode para permitir formato en el mensaje.
+// Retorna error si la petición HTTP falla o la API responde con un status distinto a 200.
 func EnviarMensajeTelegram(botToken string, chatID int64, message string) error {
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", botToken)
 
+	// Construye el cuerpo de la petición con los parámetros requeridos por la API de Telegram.
 	body, err := json.Marshal(map[string]interface{}{
 		"chat_id":    chatID,
 		"text":       message,
@@ -28,6 +32,7 @@ func EnviarMensajeTelegram(botToken string, chatID int64, message string) error 
 	}
 	defer resp.Body.Close()
 
+	// Si la respuesta no es exitosa, retorna el cuerpo de la respuesta para facilitar el debug.
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("falló al enviar mensaje, status: %s, respuesta: %s", resp.Status, string(bodyBytes))

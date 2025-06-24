@@ -14,40 +14,26 @@ import {
 import { FaPen, FaKey, FaTrashAlt } from "react-icons/fa";
 import enviarDatos from "../utils/enviarDatos";
 
+// Definición de columnas para tablas genéricas y de usuarios.
+// Separa lógica de renderizado según tipo de dato para mayor reutilización.
 const columns = [
-  {
-    key: "nombre",
-    label: "NOMBRE",
-  },
-  {
-    key: "estatus",
-    label: "ESTATUS",
-  },
-  {
-    key: "acciones",
-    label: "ACCIONES",
-  },
+  { key: "nombre", label: "NOMBRE" },
+  { key: "estatus", label: "ESTATUS" },
+  { key: "acciones", label: "ACCIONES" },
 ];
 
 const columnsUsuario = [
-  {
-    key: "nombre",
-    label: "NOMBRE",
-  },
-  {
-    key: "usuario",
-    label: "USUARIO",
-  },
-  {
-    key: "administrador",
-    label: "ADMINISTRADOR",
-  },
-  {
-    key: "acciones",
-    label: "ACCIONES",
-  },
+  { key: "nombre", label: "NOMBRE" },
+  { key: "usuario", label: "USUARIO" },
+  { key: "administrador", label: "ADMINISTRADOR" },
+  { key: "acciones", label: "ACCIONES" },
 ];
 
+/**
+ * Tabla es un componente reutilizable para mostrar listas de entidades.
+ * Permite acciones contextuales (editar, eliminar, cambiar contraseña) según props.
+ * Integra feedback visual y control de estado de carga para UX robusta.
+ */
 function Tabla({
   datosLista,
   navigate,
@@ -59,8 +45,10 @@ function Tabla({
   setVarianteModal,
   setMensajeModal,
 }) {
+  // Controla estado de carga para evitar acciones duplicadas en operaciones críticas.
   const [estaCargando, setEstaCargando] = useState(false);
 
+  // Inhabilita usuario vía API y muestra feedback.
   const inhabilitaUsuario = (usuarioID) => {
     enviarDatos({
       url: `/InhabilitarUsuario`,
@@ -74,6 +62,8 @@ function Tabla({
     });
   };
 
+  // Renderiza celdas según columna y tipo de dato.
+  // Se prioriza claridad visual y accesibilidad.
   const renderCell = (item, columnKey) => {
     if (columnKey === "estatus") {
       return (
@@ -106,6 +96,7 @@ function Tabla({
               color="primary"
               isIconOnly
               onPress={() => {
+                // Navega a pantalla de edición, pasando el ID por state.
                 navigate(`${urlEditar}`, {
                   state: { id: item.id },
                 });
@@ -122,6 +113,7 @@ function Tabla({
                   color="warning"
                   isIconOnly
                   onPress={() => {
+                    // Navega a pantalla de cambio de contraseña para el usuario seleccionado.
                     navigate("/editar-password", {
                       state: { id: item.id },
                     });
@@ -136,7 +128,7 @@ function Tabla({
                   color={item.id === usuarioAdminID ? "default" : "danger"}
                   isIconOnly
                   onPress={() => inhabilitaUsuario(item.id)}
-                  isDisabled={item.id === usuarioAdminID}
+                  isDisabled={item.id === usuarioAdminID} // Previene autoinhabilitación del admin actual.
                   isLoading={estaCargando}
                 >
                   <FaTrashAlt />
@@ -148,6 +140,7 @@ function Tabla({
       );
     }
 
+    // Renderiza valor por defecto para columnas simples.
     return getKeyValue(item, columnKey);
   };
 

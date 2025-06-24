@@ -14,28 +14,39 @@ import verificaVacio from "../utils/verificaVacio";
 import enviarDatos from "../utils/enviarDatos";
 import obtenerDatos from "../utils/obtenerDatos";
 
+/**
+ * Componente para la creación de tickets públicos.
+ * Maneja validación de campos, carga dinámica de áreas y tipos, y feedback modal.
+ */
 function CrearTicket() {
+  // Estado para catálogos de tipos de ticket y áreas de adscripción.
   const [tipoTickets, setTipoTickets] = useState(null);
   const [areas, setTipoAreas] = useState(null);
 
+  // Estado para mensajes y variantes del modal de feedback.
   const [mensajeModal, setMensajeModal] = useState("");
   const [varianteModal, setVarianteModal] = useState("");
   const [estaCargando, setEstaCargando] = useState(false);
 
+  // Estado de los inputs del formulario.
   const [valorNombre, setValorNombre] = useState("");
   const [valorDescripcion, setValorDescripcion] = useState("");
   const [valorTipo, setValorTipo] = useState(new Set([]));
   const [valorArea, setValorArea] = useState(new Set([]));
 
+  // Flags de validación para habilitar/deshabilitar el botón de submit.
   const [nombreVacia, setNombreVacia] = useState(true);
   const [descripcionVacia, setDescripcionVacia] = useState(true);
   const [tipoVacia, setTipoVacia] = useState(true);
   const [areaVacia, setAreaVacia] = useState(true);
 
+  // Estado para usuario autenticado (si aplica, permite navegación condicional).
   const [usuario, setUsuario] = useState(null);
 
+  // Hook de control de modal (de HeroUI).
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  // Carga tipos de ticket activos desde la API.
   function ObtenerTipoTickets() {
     obtenerDatos({
       url: "/ObtenerTipoTicketsActivos",
@@ -47,6 +58,7 @@ function CrearTicket() {
     });
   }
 
+  // Carga áreas activas desde la API.
   function ObtenerAreas() {
     obtenerDatos({
       url: "/ObtenerAreasActivos",
@@ -58,6 +70,8 @@ function CrearTicket() {
     });
   }
 
+  // Envía el formulario para crear un ticket.
+  // El backend espera los IDs como enteros y el nombre como string.
   const creaTicket = (ev) => {
     enviarDatos({
       ev,
@@ -77,6 +91,7 @@ function CrearTicket() {
     });
   };
 
+  // Limpia los campos del formulario tras éxito.
   const limpiarInputs = () => {
     setValorNombre("");
     setValorDescripcion("");
@@ -84,11 +99,13 @@ function CrearTicket() {
     setValorTipo(new Set([]));
   };
 
+  // Carga catálogos al montar el componente.
   useEffect(() => {
     ObtenerTipoTickets();
     ObtenerAreas();
   }, []);
 
+  // Valida campos en tiempo real para UX y control de submit.
   useEffect(() => {
     setNombreVacia(verificaVacio(valorNombre));
     setDescripcionVacia(verificaVacio(valorDescripcion));
@@ -101,6 +118,7 @@ function CrearTicket() {
       <Layout
         usuario={usuario}
         setUsuario={setUsuario}
+        // Si hay usuario autenticado, muestra botón para regresar al dashboard.
         textoBotonRegresar={usuario ? "Menú principal" : null}
         rutaBotonRegresar={usuario ? "/dashboard" : null}
       >
@@ -125,6 +143,7 @@ function CrearTicket() {
                 onSelectionChange={setValorArea}
                 variant="flat"
               >
+                {/* Renderiza áreas activas dinámicamente */}
                 {areas &&
                   areas.map((item) => (
                     <SelectItem key={item.id}>{item.nombre}</SelectItem>
@@ -137,6 +156,7 @@ function CrearTicket() {
                 onSelectionChange={setValorTipo}
                 variant="flat"
               >
+                {/* Renderiza tipos de ticket activos dinámicamente */}
                 {tipoTickets &&
                   tipoTickets.map((item) => (
                     <SelectItem key={item.id}>{item.nombre}</SelectItem>
@@ -156,6 +176,7 @@ function CrearTicket() {
               <Button
                 type="submit"
                 color="primary"
+                // El botón se deshabilita si algún campo requerido está vacío.
                 isDisabled={
                   descripcionVacia || tipoVacia || areaVacia || nombreVacia
                 }
@@ -172,6 +193,7 @@ function CrearTicket() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
+        // Limpia el formulario solo si el modal indica éxito.
         onAccept={varianteModal === "correcto" ? limpiarInputs : null}
       />
     </>

@@ -8,6 +8,11 @@ import {
 } from "@heroui/react";
 import { MdError, MdWarning, MdCheckCircle } from "react-icons/md";
 
+/**
+ * ModalComp centraliza la visualización de mensajes modales de feedback.
+ * Permite mostrar distintos íconos y títulos según el tipo de mensaje (error, advertencia, éxito).
+ * onAccept permite ejecutar lógica adicional al cerrar (ej: limpiar formularios tras éxito).
+ */
 function ModalComp({
   isOpen,
   onOpenChange,
@@ -16,6 +21,7 @@ function ModalComp({
   titulo = "",
   onAccept,
 }) {
+  // Selecciona el ícono del encabezado según el tipo de mensaje.
   const getHeaderIcon = () => {
     switch (variant) {
       case "error":
@@ -41,6 +47,7 @@ function ModalComp({
     }
   };
 
+  // Determina el título del modal según el tipo de mensaje.
   const getTitulo = () => {
     switch (variant) {
       case "error":
@@ -72,6 +79,7 @@ function ModalComp({
               <Button
                 color="primary"
                 onPress={() => {
+                  // Permite ejecutar lógica adicional antes de cerrar el modal.
                   if (onAccept) onAccept();
                   onClose();
                 }}

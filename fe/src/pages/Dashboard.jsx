@@ -9,14 +9,20 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import Layout from "../components/Layout";
 
+/**
+ * Dashboard muestra accesos rápidos a módulos clave según privilegios.
+ * Renderiza secciones administrativas solo si el usuario es admin.
+ */
 function Dashboard() {
   const [usuario, setUsuario] = useState(null);
 
+  // Determina privilegios de admin desde sessionStorage (persistencia cross-refresh).
   const admin = sessionStorage.getItem("admin");
 
   return (
     <Layout usuario={usuario} setUsuario={setUsuario}>
       <div className="grid grid-cols-2 gap-5 mx-12 w-full">
+        {/* Sección visible solo para administradores */}
         {admin === "true" && (
           <Card>
             <CardHeader>
@@ -27,6 +33,7 @@ function Dashboard() {
             <Divider />
             <CardBody>
               <div className="flex flex-col gap-2 pb-2 pl-5">
+                {/* Accesos rápidos a gestión de usuarios, áreas, estatus y tipos */}
                 <HeroLink
                   as={RouterLink}
                   to="/usuarios-todos"
@@ -59,6 +66,7 @@ function Dashboard() {
             </CardBody>
           </Card>
         )}
+        {/* Sección siempre visible: gestión de tickets */}
         <Card>
           <CardHeader>
             <h2 className="pt-2 pl-5 text-institucional text-lg font-semibold">

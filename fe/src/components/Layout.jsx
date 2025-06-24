@@ -8,6 +8,10 @@ import LogoIceo from "../assets/img/logoIceo.png";
 import forzarCierreSesion from "../utils/forzarCierreSesion";
 import obtenerDatos from "../utils/obtenerDatos";
 
+/**
+ * Layout centraliza el diseño y el encabezado de la app.
+ * Permite inyectar usuario, navegación y controles de sesión a los hijos.
+ */
 function Layout({
   children,
   usuario,
@@ -30,6 +34,10 @@ function Layout({
   );
 }
 
+/**
+ * Encabezado muestra el logo, controles de usuario y navegación contextual.
+ * Valida sesión automáticamente al montar (excepto en /login).
+ */
 function Encabezado({
   usuario,
   setUsuario,
@@ -39,12 +47,13 @@ function Encabezado({
   const [mensajeModal, setMensajeModal] = useState("");
   const [varianteModal, setVarianteModal] = useState("");
 
+  // Controla la visibilidad de modales de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const navigate = useNavigate();
-
   const location = useLocation();
 
+  // Valida sesión activa y actualiza estado global de usuario.
   function verificaSesion() {
     obtenerDatos({
       url: "/VerificaSesion",
@@ -57,6 +66,7 @@ function Encabezado({
     });
   }
 
+  // Solo verifica sesión si no está en la pantalla de login.
   useEffect(() => {
     if (location.pathname !== "/login") verificaSesion();
   }, []);
@@ -68,6 +78,7 @@ function Encabezado({
           <img className="object-cover w-full" src={LogoIceo} alt="Logo ICEO" />
         </div>
         {usuario ? (
+          // DropdownComp centraliza acciones de usuario autenticado (perfil, logout, etc.)
           <DropdownComp
             usuario={usuario}
             onOpen={onOpen}
@@ -85,6 +96,7 @@ function Encabezado({
             <h1 className="text-2xl text-institucional font-bold">
               Plataforma de Gestión de Incidencias
             </h1>
+            {/* Muestra acceso rápido a login si no está autenticado */}
             {location.pathname !== "/login" ? (
               <span>
                 <Button
@@ -116,6 +128,10 @@ function Encabezado({
   );
 }
 
+/**
+ * Botón contextual para regresar a una ruta específica.
+ * Solo se muestra si recibe texto y ruta válidos.
+ */
 function BotonRegresar({ textoBotonRegresar, rutaBotonRegresar, navigate }) {
   return (
     textoBotonRegresar &&

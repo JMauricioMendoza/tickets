@@ -14,6 +14,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// limpiarSesiones elimina periódicamente sesiones expiradas y registra logs de expiración.
+// Se ejecuta en un goroutine para no bloquear el servidor principal.
 func limpiarSesiones(db *sql.DB) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -36,6 +38,7 @@ func limpiarSesiones(db *sql.DB) {
 			usuarios = append(usuarios, usuarioID)
 		}
 
+		// Registra en logs_sesion cada expiración antes de eliminar la sesión.
 		if len(usuarios) > 0 {
 			for _, usuarioID := range usuarios {
 				_, err := db.Exec("INSERT INTO logs_sesion (usuario_id, accion) VALUES ($1, $2)", usuarioID, "Tiempo de sesión expirada")
@@ -54,6 +57,8 @@ func limpiarSesiones(db *sql.DB) {
 	}
 }
 
+// main es el punto de entrada de la aplicación.
+// Inicializa configuración, base de datos, limpieza de sesiones y el router HTTP.
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -67,12 +72,16 @@ func main() {
 
 	database.ConectarDB()
 
+	// Ejecuta la limpieza de sesiones en segundo plano.
 	go limpiarSesiones(database.DB)
 
 	r := routes.SetupRouter()
 
+	// Sirve archivos estáticos del frontend compilado (React).
 	r.Static("/static", "./fe/build/static")
 	r.StaticFile("/", "./fe/build/index.html")
+
+	// Soporte para Single Page Application: cualquier ruta no encontrada sirve index.html.
 	r.NoRoute(func(c *gin.Context) {
 		c.File("./fe/build/index.html")
 	})

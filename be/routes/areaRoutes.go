@@ -9,14 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ObtenerAreas retorna todas las áreas, activas e inactivas, ordenadas alfabéticamente.
 func ObtenerAreas(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, nombre, estatus FROM area ORDER BY nombre ASC")
 	if err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	defer rows.Close()
+
 	var areas []models.Area
 	for rows.Next() {
 		var area models.Area
@@ -26,23 +27,22 @@ func ObtenerAreas(c *gin.Context) {
 		}
 		areas = append(areas, area)
 	}
-
 	if err = rows.Err(); err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusOK, "Áreas obtenidas exitosamente", areas)
 }
 
+// ObtenerAreasActivos retorna solo las áreas activas, útil para formularios de selección.
 func ObtenerAreasActivos(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, nombre FROM area WHERE estatus IS TRUE ORDER BY nombre ASC")
 	if err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	defer rows.Close()
+
 	var areas []models.Area
 	for rows.Next() {
 		var area models.Area
@@ -52,22 +52,21 @@ func ObtenerAreasActivos(c *gin.Context) {
 		}
 		areas = append(areas, area)
 	}
-
 	if err = rows.Err(); err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusOK, "Áreas activas obtenidas exitosamente", areas)
 }
 
+// CrearArea registra una nueva área y deja traza en logs_area.
+// Utiliza transacción para garantizar atomicidad entre inserción y log.
 func CrearArea(c *gin.Context) {
 	adminID, existe := c.Get("usuario_id")
 	if !existe {
 		utils.RespuestaJSON(c, http.StatusUnauthorized, "Usuario no autenticado")
 		return
 	}
-
 	usuarioAdminID, ok := adminID.(int)
 	if !ok {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error de tipo de dato")
@@ -75,14 +74,13 @@ func CrearArea(c *gin.Context) {
 	}
 
 	var area models.Area
-
 	tx, err := database.DB.Begin()
 	if err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	defer func() {
+		// Rollback en caso de panic o error.
 		if p := recover(); p != nil {
 			_ = tx.Rollback()
 			panic(p)
@@ -104,6 +102,7 @@ func CrearArea(c *gin.Context) {
 		return
 	}
 
+	// Log de auditoría para trazabilidad de cambios.
 	queryLog := "INSERT INTO logs_area (area_id, usuario_id, accion) VALUES ($1, $2, 'Registro de nueva área en el sistema.')"
 	_, err = tx.Exec(queryLog, area.ID, usuarioAdminID)
 	if err != nil {
@@ -118,10 +117,10 @@ func CrearArea(c *gin.Context) {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusCreated, "Departamento creado exitosamente.")
 }
 
+// ObtenerAreaPorID retorna los datos de un área específica por su ID.
 func ObtenerAreaPorID(c *gin.Context) {
 	id := c.Param("id")
 	row := database.DB.QueryRow("SELECT id, nombre, estatus FROM area WHERE id = $1", id)
@@ -131,17 +130,18 @@ func ObtenerAreaPorID(c *gin.Context) {
 		utils.RespuestaJSON(c, http.StatusNotFound, "Área no encontrada.")
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusOK, "Área obtenida corretamente.", area)
 }
 
+// ActualizarArea permite modificar nombre y/o estatus de un área.
+// Registra logs de auditoría por cada cambio realizado.
+// Utiliza transacción para garantizar consistencia.
 func ActualizarArea(c *gin.Context) {
 	adminID, existe := c.Get("usuario_id")
 	if !existe {
 		utils.RespuestaJSON(c, http.StatusUnauthorized, "Usuario no autenticado")
 		return
 	}
-
 	usuarioAdminID, ok := adminID.(int)
 	if !ok {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error de tipo de dato")
@@ -159,7 +159,6 @@ func ActualizarArea(c *gin.Context) {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	defer func() {
 		if err != nil {
 			_ = tx.Rollback()
@@ -174,6 +173,7 @@ func ActualizarArea(c *gin.Context) {
 		return
 	}
 
+	// Si el nombre cambió, actualiza y registra log.
 	if areaNuevo.Nombre != areaActual.Nombre {
 		updateQueryNombre := "UPDATE area SET nombre = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryNombre, areaNuevo.Nombre, areaNuevo.ID)
@@ -181,7 +181,6 @@ func ActualizarArea(c *gin.Context) {
 			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-
 		insertLogNombre := "INSERT INTO logs_area (area_id, usuario_id, accion) VALUES ($1, $2, 'Se modificó el nombre del área.')"
 		_, err = tx.Exec(insertLogNombre, areaNuevo.ID, usuarioAdminID)
 		if err != nil {
@@ -190,6 +189,7 @@ func ActualizarArea(c *gin.Context) {
 		}
 	}
 
+	// Si el estatus cambió, actualiza y registra log.
 	if areaNuevo.Estatus != areaActual.Estatus {
 		updateQueryEstatus := "UPDATE area SET estatus = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryEstatus, areaNuevo.Estatus, areaNuevo.ID)
@@ -197,7 +197,6 @@ func ActualizarArea(c *gin.Context) {
 			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-
 		insertLogEstatus := "INSERT INTO logs_area (area_id, usuario_id, accion) VALUES ($1, $2, 'Se modificó el estatus del área.')"
 		_, err = tx.Exec(insertLogEstatus, areaNuevo.ID, usuarioAdminID)
 		if err != nil {
@@ -210,6 +209,5 @@ func ActualizarArea(c *gin.Context) {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusOK, "Departamento actualizado correctamente.")
 }

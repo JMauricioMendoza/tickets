@@ -8,28 +8,42 @@ import verificaVacio from "../utils/verificaVacio";
 import eliminarEspacios from "../utils/eliminarEspacios";
 import enviarDatos from "../utils/enviarDatos";
 
+/**
+ * EditarPassword permite a cualquier usuario cambiar su contraseña.
+ * Valida coincidencia y longitud mínima, y centraliza feedback modal.
+ */
 function EditarPassword() {
+  // Estados para inputs y visibilidad de contraseñas.
   const [valorPassword, setValorPassword] = useState("");
   const [valorPassword2, setValorPassword2] = useState("");
   const [esPasswordVisible, setEsPasswordVisible] = useState(false);
   const [esPassword2Visible, setEsPassword2Visible] = useState(false);
+
+  // Flag de validación para coincidencia de contraseñas.
   const [passwordsIguales, setPasswordsIguales] = useState(false);
+
+  // Estado global de usuario autenticado (para Layout y controles).
   const [usuario, setUsuario] = useState(null);
 
+  // Estado para feedback modal y control de carga.
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
   const [estaCargando, setEstaCargando] = useState(false);
 
+  // Control de modal de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const location = useLocation();
   const navigate = useNavigate();
+  // Obtiene el ID del usuario a editar desde el state de navegación.
   const { id } = location.state || {};
 
+  // Valida en tiempo real que ambas contraseñas coincidan.
   useEffect(() => {
     setPasswordsIguales(valorPassword === valorPassword2);
   }, [valorPassword, valorPassword2]);
 
+  // Envía la nueva contraseña al backend.
   const editaPassword = (ev) => {
     enviarDatos({
       ev,
@@ -70,6 +84,7 @@ function EditarPassword() {
                   valorPassword.length < 6 && !verificaVacio(valorPassword)
                 }
                 endContent={
+                  // Alterna visibilidad para mejorar UX.
                   <button
                     className="self-center text-gray-700 text-xl"
                     type="button"
@@ -122,6 +137,7 @@ function EditarPassword() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
+        // Redirige al dashboard tras éxito.
         onAccept={
           varianteModal === "correcto" ? () => navigate("/dashboard") : null
         }

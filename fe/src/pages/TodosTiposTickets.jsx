@@ -8,23 +8,34 @@ import Tabla from "../components/Tabla";
 import verificaAdmin from "../utils/verificaAdmin";
 import obtenerDatos from "../utils/obtenerDatos";
 
+/**
+ * TipoTicketsTodos muestra la lista de áreas de soporte (tipos de ticket) y permite su gestión.
+ * Protege la ruta, transforma datos para visualización y centraliza feedback modal.
+ */
 function TipoTicketsTodos() {
+  // Estado global de usuario autenticado (para Layout y controles).
   const [usuario, setUsuario] = useState(null);
+
+  // Estado para feedback modal.
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
 
+  // Lista de tipos de ticket a mostrar en la tabla.
   const [tipoTicketsLista, setTipoTicketsLista] = useState([]);
 
+  // Control de modal de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const navigate = useNavigate();
 
+  // Carga y transforma los tipos de ticket desde el backend.
   function obtenerTipoTickets() {
-    setTipoTicketsLista([]);
+    setTipoTicketsLista([]); // Limpia antes de cargar para evitar estados inconsistentes.
 
     obtenerDatos({
       url: "/ObtenerTipoTickets",
       onSuccess: (data) => {
+        // Transforma el campo estatus a string legible para la tabla.
         if (data.datos && data.datos.length > 0) {
           const tipoTicketsTransformados = data.datos.map((item) => ({
             ...item,
@@ -40,10 +51,12 @@ function TipoTicketsTodos() {
     });
   }
 
+  // Carga los tipos de ticket al montar el componente.
   useEffect(() => {
     obtenerTipoTickets();
   }, []);
 
+  // Protege la ruta: solo accesible para administradores.
   useEffect(() => {
     verificaAdmin(navigate);
   }, []);

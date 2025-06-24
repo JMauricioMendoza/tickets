@@ -7,21 +7,29 @@ import verificaVacio from "../utils/verificaVacio";
 import verificaAdmin from "../utils/verificaAdmin";
 import enviarDatos from "../utils/enviarDatos";
 
+/**
+ * CrearEstatus permite a usuarios administradores registrar un nuevo estatus de ticket.
+ * Protege la ruta, controla feedback modal y asegura validación reactiva.
+ */
 function CrearEstatus() {
+  // Estado para feedback modal y control de carga.
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
   const [estaCargando, setEstaCargando] = useState(false);
 
+  // Estado del input y flag de validación.
   const [valorNombre, setValorNombre] = useState("");
-
   const [nombreVacia, setNombreVacia] = useState(true);
 
+  // Estado global de usuario autenticado (para Layout y controles).
   const [usuario, setUsuario] = useState(null);
 
+  // Control de modal de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const navigate = useNavigate();
 
+  // Envía el formulario para crear el estatus.
   const creaEstatusTicket = (ev) => {
     enviarDatos({
       ev,
@@ -38,10 +46,12 @@ function CrearEstatus() {
     });
   };
 
+  // Protege la ruta: solo accesible para administradores.
   useEffect(() => {
     verificaAdmin(navigate);
   }, []);
 
+  // Valida el campo en tiempo real para UX y control de submit.
   useEffect(() => {
     setNombreVacia(verificaVacio(valorNombre));
   }, [valorNombre]);
@@ -72,7 +82,7 @@ function CrearEstatus() {
               <Button
                 type="submit"
                 color="primary"
-                isDisabled={nombreVacia}
+                isDisabled={nombreVacia} // Deshabilita si el campo está vacío.
                 isLoading={estaCargando}
               >
                 Crear estatus de ticket
@@ -86,6 +96,7 @@ function CrearEstatus() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
+        // Redirige a la lista tras éxito.
         onAccept={
           varianteModal === "correcto" ? () => navigate("/estatus-todos") : null
         }

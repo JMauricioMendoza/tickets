@@ -18,20 +18,31 @@ import Layout from "../components/Layout";
 import ModalComp from "../components/ModalComp";
 import obtenerDatos from "../utils/obtenerDatos";
 
+/**
+ * TicketsTodos muestra todos los tickets y permite filtrado por tipo y estatus.
+ * Centraliza feedback modal y asegura actualización reactiva de la lista.
+ */
 function TicketsTodos() {
   const [usuario, setUsuario] = useState(null);
+
+  // Estado para feedback modal y control de mensajes.
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
+
+  // Estado de tickets y tickets filtrados.
   const [tickets, setTickets] = useState([]);
   const [ticketsFiltrados, setTicketsFiltrados] = useState([]);
 
+  // Control de modal de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const navigate = useNavigate();
 
+  // Carga todos los tickets del backend.
   function obtenerTickets() {
-    setTickets([]);
+    setTickets([]); // Limpia antes de cargar para evitar estados inconsistentes.
 
+    // Solo carga si hay usuario autenticado.
     if (!usuario) return;
 
     obtenerDatos({
@@ -47,6 +58,7 @@ function TicketsTodos() {
     });
   }
 
+  // Carga tickets al montar o cuando cambia el usuario.
   useEffect(() => {
     obtenerTickets();
   }, [usuario]);
@@ -63,6 +75,7 @@ function TicketsTodos() {
           <h2 className="text-institucional text-2xl font-semibold">
             Todos los tickets
           </h2>
+          {/* Filtros de tipo y estatus */}
           <Selects
             tickets={tickets}
             setTicketsFiltrados={setTicketsFiltrados}
@@ -79,6 +92,7 @@ function TicketsTodos() {
               Actualizar lista
             </Button>
           </span>
+          {/* Renderiza lista o alerta según disponibilidad */}
           {ticketsFiltrados.length > 0 ? (
             <ListaTickets ticketsFiltrados={ticketsFiltrados} />
           ) : (
@@ -96,6 +110,9 @@ function TicketsTodos() {
   );
 }
 
+/**
+ * Alerta muestra un mensaje cuando no hay tickets disponibles.
+ */
 function Alerta() {
   return (
     <Alert
@@ -107,7 +124,12 @@ function Alerta() {
   );
 }
 
+/**
+ * ListaTickets renderiza la lista de tickets filtrados.
+ * Usa chips para mostrar metadatos clave y coloriza el estatus.
+ */
 function ListaTickets({ ticketsFiltrados }) {
+  // Mapeo de colores por estatus para visual feedback.
   const coloresPorEstatus = {
     1: "warning",
     2: "secondary",
@@ -169,6 +191,10 @@ function ListaTickets({ ticketsFiltrados }) {
   );
 }
 
+/**
+ * Selects permite filtrar tickets por tipo y estatus.
+ * Memoiza opciones únicas para evitar renders innecesarios y mejorar UX.
+ */
 function Selects({ tickets, ticketsFiltrados, setTicketsFiltrados }) {
   const [valorSelectEstatusTicket, setValorSelectEstatusTicket] = useState(
     new Set("0"),
@@ -177,6 +203,7 @@ function Selects({ tickets, ticketsFiltrados, setTicketsFiltrados }) {
     new Set("0"),
   );
 
+  // Filtra tickets reactivo según selección de tipo/estatus.
   useEffect(() => {
     const estatus = Number(Array.from(valorSelectEstatusTicket)[0]);
     const tipo = Number(Array.from(valorSelectTipoTicket)[0]);
@@ -201,6 +228,7 @@ function Selects({ tickets, ticketsFiltrados, setTicketsFiltrados }) {
     setTicketsFiltrados,
   ]);
 
+  // Memoiza opciones únicas de tipo de ticket para evitar duplicados.
   const opcionesTipoTicketUnicas = useMemo(() => {
     const idsTipoTicketAgregados = new Set();
     return ticketsFiltrados.filter((ticket) => {
@@ -210,6 +238,7 @@ function Selects({ tickets, ticketsFiltrados, setTicketsFiltrados }) {
     });
   }, [ticketsFiltrados]);
 
+  // Memoiza opciones únicas de estatus de ticket para evitar duplicados.
   const opcionesEstatusTicketUnicas = useMemo(() => {
     const idsEstatusTicketAgregados = new Set();
     return ticketsFiltrados.filter((ticket) => {
@@ -218,6 +247,7 @@ function Selects({ tickets, ticketsFiltrados, setTicketsFiltrados }) {
       return true;
     });
   }, [ticketsFiltrados]);
+
   return (
     <div className="flex gap-5">
       <div className="w-72">

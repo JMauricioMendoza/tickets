@@ -8,26 +8,35 @@ import verificaAdmin from "../utils/verificaAdmin";
 import enviarDatos from "../utils/enviarDatos";
 import obtenerDatos from "../utils/obtenerDatos";
 
+/**
+ * EditarTipoTicket permite a administradores modificar nombre y estatus de un tipo de ticket (área de soporte).
+ * Protege la ruta, carga datos dependientes y controla feedback modal.
+ */
 function EditarTipoTicket() {
+  // Estado para los datos actuales del tipo de ticket.
   const [datosTipoTicket, setDatosTipoTicket] = useState(null);
 
+  // Estado para feedback modal y control de carga.
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
   const [estaCargando, setEstaCargando] = useState(false);
 
+  // Estado de los inputs y flag de validación.
   const [valorNombre, setValorNombre] = useState("");
   const [valorSwitch, setValorSwitch] = useState(false);
-
   const [nombreVacia, setNombreVacia] = useState(true);
 
+  // Estado global de usuario autenticado (para Layout y controles).
   const [usuario, setUsuario] = useState(null);
 
+  // Control de modal de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = location.state || {};
 
+  // Carga los datos del tipo de ticket a editar.
   function obtenerTipoTicket() {
     obtenerDatos({
       url: `/ObtenerTipoTicketPorID/${id}`,
@@ -39,6 +48,7 @@ function EditarTipoTicket() {
     });
   }
 
+  // Envía los cambios al backend.
   const editaTipoTicket = (ev) => {
     enviarDatos({
       ev,
@@ -57,15 +67,18 @@ function EditarTipoTicket() {
     });
   };
 
+  // Protege la ruta y carga datos al montar.
   useEffect(() => {
     verificaAdmin(navigate);
     obtenerTipoTicket();
   }, []);
 
+  // Valida el campo nombre en tiempo real para UX y control de submit.
   useEffect(() => {
     setNombreVacia(verificaVacio(valorNombre));
   }, [valorNombre]);
 
+  // Sincroniza los inputs con los datos cargados del tipo de ticket.
   useEffect(() => {
     setValorNombre(datosTipoTicket?.nombre || "");
     setValorSwitch(datosTipoTicket?.estatus || false);
@@ -104,7 +117,7 @@ function EditarTipoTicket() {
               <Button
                 type="submit"
                 color="primary"
-                isDisabled={nombreVacia}
+                isDisabled={nombreVacia} // Deshabilita si el campo está vacío.
                 isLoading={estaCargando}
               >
                 Editar área de soporte
@@ -118,6 +131,7 @@ function EditarTipoTicket() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
+        // Redirige a la lista tras éxito.
         onAccept={
           varianteModal === "correcto"
             ? () => navigate("/tipo-tickets-todos")

@@ -10,6 +10,11 @@ import {
 import { FaUserCircle } from "react-icons/fa";
 import enviarDatos from "../utils/enviarDatos";
 
+/**
+ * DropdownComp muestra el menú contextual del usuario autenticado.
+ * Permite cambiar contraseña y cerrar sesión.
+ * Centraliza feedback y navegación tras logout.
+ */
 function DropdownComp({
   usuario,
   onOpen,
@@ -18,15 +23,17 @@ function DropdownComp({
   navigate,
   forzarCierreSesion,
 }) {
+  // Controla el estado de carga para evitar acciones duplicadas en logout.
   const [estaCargando, setEstaCargando] = useState(false);
 
+  // Cierra sesión y fuerza navegación tras éxito.
   const cierraSesion = () => {
     enviarDatos({
       url: `/CerrarSesion/${usuario.usuario_id}`,
       metodo: "DELETE",
       usarToken: false,
       onSuccess: () => {
-        forzarCierreSesion(navigate);
+        forzarCierreSesion(navigate); // Limpia estado global y redirige.
       },
       setEstaCargando,
       onOpen,
@@ -50,6 +57,7 @@ function DropdownComp({
           <DropdownItem
             key="password"
             onPress={() => {
+              // Navega a pantalla de cambio de contraseña, pasando el ID por state.
               navigate("/editar-password", {
                 state: { id: usuario.usuario_id },
               });
@@ -63,7 +71,7 @@ function DropdownComp({
           className="text-danger"
           color="danger"
           onPress={cierraSesion}
-          isDisabled={estaCargando}
+          isDisabled={estaCargando} // Previene doble submit en logout.
         >
           Cerrar sesión
         </DropdownItem>

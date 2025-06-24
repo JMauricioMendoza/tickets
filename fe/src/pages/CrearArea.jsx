@@ -7,21 +7,29 @@ import verificaVacio from "../utils/verificaVacio";
 import verificaAdmin from "../utils/verificaAdmin";
 import enviarDatos from "../utils/enviarDatos";
 
+/**
+ * CrearArea permite a usuarios administradores registrar un nuevo departamento.
+ * Valida permisos, controla feedback modal y asegura UX robusta.
+ */
 function CrearArea() {
+  // Estado para feedback modal y control de carga.
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
   const [estaCargando, setEstaCargando] = useState(false);
 
+  // Estado del input y flag de validación.
   const [valorNombre, setValorNombre] = useState("");
-
   const [nombreVacia, setNombreVacia] = useState(true);
 
+  // Estado global de usuario autenticado (para Layout y controles).
   const [usuario, setUsuario] = useState(null);
 
+  // Control de modal de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const navigate = useNavigate();
 
+  // Envía el formulario para crear el área.
   const creaArea = (ev) => {
     enviarDatos({
       ev,
@@ -38,10 +46,12 @@ function CrearArea() {
     });
   };
 
+  // Protege la ruta: solo accesible para administradores.
   useEffect(() => {
     verificaAdmin(navigate);
   }, []);
 
+  // Valida el campo en tiempo real para UX y control de submit.
   useEffect(() => {
     setNombreVacia(verificaVacio(valorNombre));
   }, [valorNombre]);
@@ -72,7 +82,7 @@ function CrearArea() {
               <Button
                 type="submit"
                 color="primary"
-                isDisabled={nombreVacia}
+                isDisabled={nombreVacia} // Deshabilita si el campo está vacío.
                 isLoading={estaCargando}
               >
                 Crear departamento
@@ -86,6 +96,7 @@ function CrearArea() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
+        // Redirige a la lista tras éxito.
         onAccept={
           varianteModal === "correcto" ? () => navigate("/areas-todos") : null
         }

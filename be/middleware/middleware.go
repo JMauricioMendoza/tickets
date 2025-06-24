@@ -9,6 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// AutenticacionMiddleware valida el token JWT enviado en el header Authorization.
+// Si el token es válido y la sesión está activa, inyecta el usuario_id en el contexto.
+// Aborta la petición si el token es inválido, expirado o el usuario está inactivo.
 func AutenticacionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
@@ -19,11 +22,13 @@ func AutenticacionMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// Permite el formato estándar "Bearer <token>"
 		if len(token) > 7 && token[:7] == "Bearer " {
 			token = token[7:]
 		}
 		var usuarioID int
 
+		// Verifica que el token exista, no haya expirado y el usuario esté activo.
 		query := `
             SELECT s.usuario_id
             FROM sesion s
@@ -38,11 +43,14 @@ func AutenticacionMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// Inyecta el usuario_id en el contexto para middlewares/controladores posteriores.
 		c.Set("usuario_id", usuarioID)
 		c.Next()
 	}
 }
 
+// AdministradorMiddleware restringe el acceso a rutas solo para usuarios administradores.
+// Requiere que AutenticacionMiddleware haya sido ejecutado previamente.
 func AdministradorMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		usuarioIDRaw, existe := c.Get("usuario_id")
@@ -60,6 +68,7 @@ func AdministradorMiddleware() gin.HandlerFunc {
 		}
 
 		var esAdmin bool
+		// Verifica que el usuario esté activo y tenga privilegios de administrador.
 		query := "SELECT administrador FROM usuario WHERE id = $1 AND estatus IS TRUE"
 		err := database.DB.QueryRow(query, usuarioID).Scan(&esAdmin)
 		if err != nil {

@@ -17,30 +17,41 @@ import eliminarEspacios from "../utils/eliminarEspacios";
 import enviarDatos from "../utils/enviarDatos";
 import obtenerDatos from "../utils/obtenerDatos";
 
+/**
+ * CrearUsuario permite a administradores registrar nuevos usuarios del sistema.
+ * Valida permisos, controla feedback modal y asegura validación reactiva de campos.
+ */
 function CrearUsuario() {
+  // Catálogo de áreas de soporte (tipos de ticket) disponibles.
   const [tipoTickets, setTipoTickets] = useState(null);
 
+  // Estado para feedback modal y control de carga.
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
   const [estaCargando, setEstaCargando] = useState(false);
 
+  // Estado de los inputs del formulario.
   const [valorNombre, setValorNombre] = useState("");
   const [valorUsuario, setValorUsuario] = useState("");
   const [valorTipo, setValorTipo] = useState(new Set([]));
   const [valorPassword, setValorPassword] = useState("");
-  const [valorSwitch, setValorSwitch] = useState(false);
+  const [valorSwitch, setValorSwitch] = useState(false); // Privilegio admin
 
+  // Flags de validación para habilitar/deshabilitar el botón de submit.
   const [nombreVacia, setNombreVacia] = useState(true);
   const [usuarioVacia, setUsuarioVacia] = useState(true);
   const [tipoVacia, setTipoVacia] = useState(true);
   const [passwordVacia, setPaswordVacia] = useState(true);
 
+  // Estado global de usuario autenticado (para Layout y controles).
   const [usuario, setUsuario] = useState(null);
 
+  // Control de modal de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const navigate = useNavigate();
 
+  // Envía el formulario para crear el usuario.
   const creaUsuario = (ev) => {
     enviarDatos({
       ev,
@@ -51,7 +62,7 @@ function CrearUsuario() {
         password: valorPassword,
         usuario: valorUsuario,
         administrador: valorSwitch,
-        tipo_ticket_id: Array.from(valorTipo, Number),
+        tipo_ticket_id: Array.from(valorTipo, Number), // Convierte Set a array de IDs numéricos.
       },
       setEstaCargando,
       navigate,
@@ -61,6 +72,7 @@ function CrearUsuario() {
     });
   };
 
+  // Carga tipos de ticket activos para selección múltiple.
   function ObtenerTipoTickets() {
     obtenerDatos({
       url: "/ObtenerTipoTicketsActivos",
@@ -72,11 +84,13 @@ function CrearUsuario() {
     });
   }
 
+  // Protege la ruta: solo accesible para administradores y carga catálogos al montar.
   useEffect(() => {
     verificaAdmin(navigate);
     ObtenerTipoTickets();
   }, []);
 
+  // Valida campos en tiempo real para UX y control de submit.
   useEffect(() => {
     setNombreVacia(verificaVacio(valorNombre));
     setUsuarioVacia(verificaVacio(valorUsuario));
@@ -120,6 +134,7 @@ function CrearUsuario() {
                 variant="flat"
                 selectionMode="multiple"
               >
+                {/* Renderiza áreas de soporte dinámicamente */}
                 {tipoTickets &&
                   tipoTickets.map((item) => (
                     <SelectItem key={item.id}>{item.nombre}</SelectItem>
@@ -161,6 +176,7 @@ function CrearUsuario() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
+        // Redirige a la lista tras éxito.
         onAccept={
           varianteModal === "correcto"
             ? () => navigate("/usuarios-todos")

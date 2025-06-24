@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ObtenerUsuariosActivos retorna todos los usuarios activos ordenados alfabéticamente.
 func ObtenerUsuariosActivos(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, nombre, usuario, administrador FROM usuario WHERE estatus IS TRUE ORDER BY nombre ASC")
 	if err != nil {
@@ -35,6 +36,8 @@ func ObtenerUsuariosActivos(c *gin.Context) {
 	utils.RespuestaJSON(c, http.StatusOK, "Usuarios obtenidos exitosamente", usuarios)
 }
 
+// CrearUsuario registra un nuevo usuario, asigna tipos de ticket y deja traza en logs_usuario.
+// Utiliza transacción para garantizar atomicidad entre inserción y log.
 func CrearUsuario(c *gin.Context) {
 	adminID, existe := c.Get("usuario_id")
 	if !existe {
@@ -57,6 +60,7 @@ func CrearUsuario(c *gin.Context) {
 	}
 
 	defer func() {
+		// Rollback en caso de panic o error.
 		if p := recover(); p != nil {
 			_ = tx.Rollback()
 			panic(p)
@@ -75,6 +79,7 @@ func CrearUsuario(c *gin.Context) {
 		return
 	}
 
+	// Valida que el usuario no exista previamente.
 	queryCheck := "SELECT EXISTS (SELECT 1 FROM usuario WHERE usuario = $1)"
 	err = tx.QueryRow(queryCheck, usuario.Usuario).Scan(&existe)
 	if err != nil {
@@ -86,6 +91,7 @@ func CrearUsuario(c *gin.Context) {
 		return
 	}
 
+	// Hashea la contraseña antes de guardar.
 	if err := usuario.HashearPassword(); err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
@@ -99,12 +105,14 @@ func CrearUsuario(c *gin.Context) {
 		return
 	}
 
+	// Valida que se asignen áreas de soporte.
 	if len(usuario.TipoTicketID) == 0 {
 		_ = tx.Rollback()
 		utils.RespuestaJSON(c, http.StatusBadRequest, "Debe asignar al menos un tipo de ticket al usuario.")
 		return
 	}
 
+	// Asigna los tipos de ticket permitidos al usuario.
 	for _, tipoTicketID := range usuario.TipoTicketID {
 		_, err = tx.Exec("INSERT INTO usuario_tipo_ticket (usuario_id, tipo_ticket_id) VALUES ($1, $2)", usuario.ID, tipoTicketID)
 		if err != nil {
@@ -114,6 +122,7 @@ func CrearUsuario(c *gin.Context) {
 		}
 	}
 
+	// Log de auditoría para trazabilidad de cambios.
 	queryLog := "INSERT INTO logs_usuario (usuario_id, usuario_modificador_id, accion) VALUES ($1, $2, 'Registro de nuevo usuario en el sistema.')"
 	_, err = tx.Exec(queryLog, usuario.ID, usuarioAdminID)
 	if err != nil {
@@ -132,6 +141,8 @@ func CrearUsuario(c *gin.Context) {
 	utils.RespuestaJSON(c, http.StatusCreated, fmt.Sprintf("Usuario #%d creado exitosamente", usuario.ID))
 }
 
+// CambiarPassword permite cambiar la contraseña de un usuario.
+// Solo el propio usuario o un administrador pueden realizar la operación.
 func CambiarPassword(c *gin.Context) {
 	usuarioID, existe := c.Get("usuario_id")
 	if !existe {
@@ -156,6 +167,7 @@ func CambiarPassword(c *gin.Context) {
 		return
 	}
 
+	// Permite que solo el propio usuario o un administrador cambien la contraseña.
 	if usuario.ID != usuid {
 		var esAdmin bool
 		err := database.DB.QueryRow("SELECT administrador FROM usuario WHERE id = $1 AND estatus IS TRUE", usuid).Scan(&esAdmin)
@@ -215,6 +227,8 @@ func CambiarPassword(c *gin.Context) {
 	utils.RespuestaJSON(c, http.StatusOK, "Contraseña cambiada correctamente.")
 }
 
+// InhabilitarUsuario desactiva un usuario y registra el cambio en logs_usuario.
+// Utiliza transacción para garantizar atomicidad.
 func InhabilitarUsuario(c *gin.Context) {
 	usuarioID, existe := c.Get("usuario_id")
 	if !existe {
@@ -276,6 +290,7 @@ func InhabilitarUsuario(c *gin.Context) {
 	utils.RespuestaJSON(c, http.StatusOK, "Usuario inhabilitado correctamente.")
 }
 
+// ObtenerUsuarioPorID retorna los datos de un usuario específico y sus áreas de soporte activas.
 func ObtenerUsuarioPorID(c *gin.Context) {
 	id := c.Param("id")
 	row := database.DB.QueryRow(`
@@ -297,6 +312,7 @@ func ObtenerUsuarioPorID(c *gin.Context) {
 		return
 	}
 
+	// Obtiene los tipos de ticket activos asociados al usuario.
 	rows, err := database.DB.Query(`
 		SELECT tipo_ticket_id
 		FROM usuario_tipo_ticket
@@ -318,6 +334,9 @@ func ObtenerUsuarioPorID(c *gin.Context) {
 	utils.RespuestaJSON(c, http.StatusOK, "Usuario obtenido exitosamente", usuario)
 }
 
+// ActualizarUsuario permite modificar nombre, usuario, privilegios y áreas de soporte de un usuario.
+// Registra logs de auditoría por cada cambio realizado.
+// Utiliza transacción para garantizar consistencia.
 func ActualizarUsuario(c *gin.Context) {
 	adminID, existe := c.Get("usuario_id")
 	if !existe {
@@ -357,6 +376,7 @@ func ActualizarUsuario(c *gin.Context) {
 		return
 	}
 
+	// Actualiza nombre si cambió y registra log.
 	if usuarioNuevo.Nombre != usuarioActual.Nombre {
 		updateQueryNombre := "UPDATE usuario SET nombre = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryNombre, usuarioNuevo.Nombre, usuarioNuevo.ID)
@@ -373,6 +393,7 @@ func ActualizarUsuario(c *gin.Context) {
 		}
 	}
 
+	// Actualiza nombre de usuario si cambió y registra log.
 	if usuarioNuevo.Usuario != usuarioActual.Usuario {
 		updateQueryUsuario := "UPDATE usuario SET usuario = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryUsuario, usuarioNuevo.Usuario, usuarioNuevo.ID)
@@ -389,6 +410,7 @@ func ActualizarUsuario(c *gin.Context) {
 		}
 	}
 
+	// Actualiza privilegios de administrador si cambiaron y registra log.
 	if usuarioNuevo.Administrador != usuarioActual.Administrador {
 		updateQueryAdministrador := "UPDATE usuario SET administrador = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryAdministrador, usuarioNuevo.Administrador, usuarioNuevo.ID)
@@ -405,6 +427,7 @@ func ActualizarUsuario(c *gin.Context) {
 		}
 	}
 
+	// Sincroniza áreas de soporte (tipo_ticket) activas del usuario.
 	rows, err := tx.Query("SELECT tipo_ticket_id FROM usuario_tipo_ticket WHERE usuario_id = $1 AND estatus = true", usuarioNuevo.ID)
 	if err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
@@ -427,6 +450,7 @@ func ActualizarUsuario(c *gin.Context) {
 
 	modificoAreas := false
 
+	// Desactiva áreas que ya no están en la nueva lista.
 	for id := range actuales {
 		if !recibidos[id] {
 			_, err := tx.Exec("UPDATE usuario_tipo_ticket SET estatus = false, actualizado_en = NOW() WHERE usuario_id = $1 AND tipo_ticket_id = $2", usuarioNuevo.ID, id)
@@ -438,6 +462,7 @@ func ActualizarUsuario(c *gin.Context) {
 		}
 	}
 
+	// Activa o inserta nuevas áreas.
 	for id := range recibidos {
 		if !actuales[id] {
 			var existe bool
@@ -464,6 +489,7 @@ func ActualizarUsuario(c *gin.Context) {
 		}
 	}
 
+	// Registra log si hubo cambios en áreas de soporte.
 	if modificoAreas {
 		insertLogAreas := "INSERT INTO logs_usuario (usuario_id, usuario_modificador_id, accion) VALUES ($1, $2, 'Se modificaron permisos de las áreas de soporte.')"
 		_, err = tx.Exec(insertLogAreas, usuarioNuevo.ID, usuarioAdminID)
@@ -481,6 +507,7 @@ func ActualizarUsuario(c *gin.Context) {
 	utils.RespuestaJSON(c, http.StatusOK, "Usuario actualizado correctamente.")
 }
 
+// ObtenerUsuariosInactivos retorna todos los usuarios inactivos ordenados alfabéticamente.
 func ObtenerUsuariosInactivos(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, nombre, usuario FROM usuario WHERE estatus IS FALSE ORDER BY nombre ASC")
 	if err != nil {
@@ -506,6 +533,8 @@ func ObtenerUsuariosInactivos(c *gin.Context) {
 	utils.RespuestaJSON(c, http.StatusOK, "Usuarios inactivos obtenidos exitosamente", usuarios)
 }
 
+// HabilitarUsuario activa un usuario previamente inhabilitado y registra el cambio en logs_usuario.
+// Utiliza transacción para garantizar atomicidad.
 func HabilitarUsuario(c *gin.Context) {
 	usuarioID, existe := c.Get("usuario_id")
 	if !existe {

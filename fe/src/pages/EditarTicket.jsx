@@ -14,29 +14,39 @@ import ModalComp from "../components/ModalComp";
 import enviarDatos from "../utils/enviarDatos";
 import obtenerDatos from "../utils/obtenerDatos";
 
+/**
+ * EditarTicket permite modificar tipo y estatus de un ticket existente.
+ * Carga datos dependientes y controla feedback modal.
+ */
 function EditarTicket() {
+  // Catálogos y datos del ticket.
   const [tipoTickets, setTipoTickets] = useState(null);
   const [estatusTickets, setEstatusTickets] = useState(null);
   const [ticket, setTicket] = useState(null);
 
+  // Estado para feedback modal y control de carga.
   const [mensajeModal, setMensajeModal] = useState("");
   const [varianteModal, setVarianteModal] = useState("");
   const [estaCargando, setEstaCargando] = useState(false);
 
+  // Estado de selects y flags de validación.
   const [valorTipo, setValorTipo] = useState(new Set([]));
   const [valorEstatus, setValorEstatus] = useState(new Set([]));
-
   const [tipoVacia, setTipoVacia] = useState(true);
   const [estatusVacia, setEstatusVacia] = useState(true);
 
+  // Estado global de usuario autenticado (para Layout y controles).
   const [usuario, setUsuario] = useState(null);
 
+  // Control de modal de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const location = useLocation();
   const navigate = useNavigate();
+  // Obtiene el ID del ticket a editar desde el state de navegación.
   const { ticketID } = location.state || {};
 
+  // Carga tipos de ticket activos.
   function ObtenerTipoTickets() {
     obtenerDatos({
       url: "/ObtenerTipoTicketsActivos",
@@ -48,6 +58,7 @@ function EditarTicket() {
     });
   }
 
+  // Carga estatus de ticket activos.
   function ObtenerEstatusTickets() {
     obtenerDatos({
       url: "/ObtenerEstatusTicketsActivos",
@@ -59,6 +70,7 @@ function EditarTicket() {
     });
   }
 
+  // Carga los datos actuales del ticket.
   function ObtenerTicket() {
     obtenerDatos({
       url: `/ObtenerTicketPorID/${ticketID}`,
@@ -70,6 +82,7 @@ function EditarTicket() {
     });
   }
 
+  // Envía los cambios al backend.
   const editaTicket = (ev) => {
     enviarDatos({
       ev,
@@ -88,17 +101,21 @@ function EditarTicket() {
     });
   };
 
+  // Carga catálogos y datos del ticket al montar.
   useEffect(() => {
     ObtenerTipoTickets();
     ObtenerEstatusTickets();
     ObtenerTicket();
+    // eslint-disable-next-line
   }, []);
 
+  // Valida selects para habilitar/deshabilitar submit.
   useEffect(() => {
     setTipoVacia(!(valorTipo.size > 0));
     setEstatusVacia(!(valorEstatus.size > 0));
   }, [valorTipo, valorEstatus]);
 
+  // Sincroniza selects con los datos actuales del ticket.
   useEffect(() => {
     if (ticket) {
       setValorTipo(new Set([ticket.tipo_ticket_id.toString()]));
@@ -145,6 +162,7 @@ function EditarTicket() {
                   onSelectionChange={setValorTipo}
                   variant="flat"
                 >
+                  {/* Renderiza tipos de ticket activos */}
                   {tipoTickets &&
                     tipoTickets.map((item) => (
                       <SelectItem key={item.id}>{item.nombre}</SelectItem>
@@ -157,6 +175,7 @@ function EditarTicket() {
                   onSelectionChange={setValorEstatus}
                   variant="flat"
                 >
+                  {/* Renderiza estatus activos */}
                   {estatusTickets &&
                     estatusTickets.map((item) => (
                       <SelectItem key={item.id}>{item.nombre}</SelectItem>
@@ -197,6 +216,7 @@ function EditarTicket() {
         onOpenChange={onOpenChange}
         variant={varianteModal}
         mensaje={mensajeModal}
+        // Redirige a la lista tras éxito.
         onAccept={
           varianteModal === "correcto" ? () => navigate("/tickets-todos") : null
         }

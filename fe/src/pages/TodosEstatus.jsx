@@ -8,23 +8,34 @@ import verificaAdmin from "../utils/verificaAdmin";
 import obtenerDatos from "../utils/obtenerDatos";
 import Tabla from "../components/Tabla";
 
+/**
+ * EstatusTodos muestra la lista de estatus de ticket y permite su gestión.
+ * Protege la ruta, transforma datos para visualización y centraliza feedback modal.
+ */
 function EstatusTodos() {
+  // Estado global de usuario autenticado (para Layout y controles).
   const [usuario, setUsuario] = useState(null);
+
+  // Estado para feedback modal.
   const [varianteModal, setVarianteModal] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
 
+  // Lista de estatus a mostrar en la tabla.
   const [areasLista, setAreasLista] = useState([]);
 
+  // Control de modal de feedback.
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const navigate = useNavigate();
 
+  // Carga y transforma los estatus desde el backend.
   function obtenerEstatus() {
-    setAreasLista([]);
+    setAreasLista([]); // Limpia antes de cargar para evitar estados inconsistentes.
 
     obtenerDatos({
       url: "/ObtenerEstatusTickets",
       onSuccess: (data) => {
+        // Transforma el campo estatus a string legible para la tabla.
         if (data.datos && data.datos.length > 0) {
           const areasTransformadas = data.datos.map((item) => ({
             ...item,
@@ -40,10 +51,12 @@ function EstatusTodos() {
     });
   }
 
+  // Carga los estatus al montar el componente.
   useEffect(() => {
     obtenerEstatus();
   }, []);
 
+  // Protege la ruta: solo accesible para administradores.
   useEffect(() => {
     verificaAdmin(navigate);
   }, []);

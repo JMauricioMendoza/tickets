@@ -9,14 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ObtenerEstatusTickets retorna todos los estatus de ticket, activos e inactivos, ordenados alfabéticamente.
 func ObtenerEstatusTickets(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, nombre, estatus FROM estatus_ticket ORDER BY nombre ASC")
 	if err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	defer rows.Close()
+
 	var estatusTickets []models.EstatusTicket
 	for rows.Next() {
 		var estatusTicket models.EstatusTicket
@@ -26,23 +27,22 @@ func ObtenerEstatusTickets(c *gin.Context) {
 		}
 		estatusTickets = append(estatusTickets, estatusTicket)
 	}
-
 	if err = rows.Err(); err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusOK, "Estatus de ticket obtenidos exitosamente", estatusTickets)
 }
 
+// ObtenerEstatusTicketsActivos retorna solo los estatus activos, útil para formularios de selección.
 func ObtenerEstatusTicketsActivos(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, nombre FROM estatus_ticket WHERE estatus IS TRUE ORDER BY nombre ASC")
 	if err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	defer rows.Close()
+
 	var estatusTickets []models.EstatusTicket
 	for rows.Next() {
 		var estatusTicket models.EstatusTicket
@@ -52,15 +52,14 @@ func ObtenerEstatusTicketsActivos(c *gin.Context) {
 		}
 		estatusTickets = append(estatusTickets, estatusTicket)
 	}
-
 	if err = rows.Err(); err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusOK, "Estatus de ticket obtenidos exitosamente", estatusTickets)
 }
 
+// ObtenerEstatusTicketsPorID retorna los datos de un estatus de ticket específico por su ID.
 func ObtenerEstatusTicketsPorID(c *gin.Context) {
 	id := c.Param("id")
 	row := database.DB.QueryRow("SELECT id, nombre, estatus FROM estatus_ticket WHERE id = $1", id)
@@ -70,17 +69,18 @@ func ObtenerEstatusTicketsPorID(c *gin.Context) {
 		utils.RespuestaJSON(c, http.StatusNotFound, "Estatus de ticket no encontrado.")
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusOK, "Estatus de ticket obtenido corretamente.", estatusTicket)
 }
 
+// ActualizarEstatusTicket permite modificar nombre y/o estatus de un estatus de ticket.
+// Registra logs de auditoría por cada cambio realizado.
+// Utiliza transacción para garantizar consistencia.
 func ActualizarEstatusTicket(c *gin.Context) {
 	adminID, existe := c.Get("usuario_id")
 	if !existe {
 		utils.RespuestaJSON(c, http.StatusUnauthorized, "Usuario no autenticado")
 		return
 	}
-
 	usuarioAdminID, ok := adminID.(int)
 	if !ok {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error de tipo de dato")
@@ -98,7 +98,6 @@ func ActualizarEstatusTicket(c *gin.Context) {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	defer func() {
 		if err != nil {
 			_ = tx.Rollback()
@@ -113,6 +112,7 @@ func ActualizarEstatusTicket(c *gin.Context) {
 		return
 	}
 
+	// Si el nombre cambió, actualiza y registra log.
 	if estatusTicketNuevo.Nombre != estatusTicketActual.Nombre {
 		updateQueryNombre := "UPDATE estatus_ticket SET nombre = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryNombre, estatusTicketNuevo.Nombre, estatusTicketNuevo.ID)
@@ -120,7 +120,6 @@ func ActualizarEstatusTicket(c *gin.Context) {
 			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-
 		insertLogNombre := "INSERT INTO logs_estatus_ticket (estatus_ticket_id, usuario_id, accion) VALUES ($1, $2, 'Se modificó el nombre del estatus de ticket.')"
 		_, err = tx.Exec(insertLogNombre, estatusTicketNuevo.ID, usuarioAdminID)
 		if err != nil {
@@ -129,6 +128,7 @@ func ActualizarEstatusTicket(c *gin.Context) {
 		}
 	}
 
+	// Si el estatus cambió, actualiza y registra log.
 	if estatusTicketNuevo.Estatus != estatusTicketActual.Estatus {
 		updateQueryEstatus := "UPDATE estatus_ticket SET estatus = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryEstatus, estatusTicketNuevo.Estatus, estatusTicketNuevo.ID)
@@ -136,7 +136,6 @@ func ActualizarEstatusTicket(c *gin.Context) {
 			utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-
 		insertLogEstatus := "INSERT INTO logs_estatus_ticket (estatus_ticket_id, usuario_id, accion) VALUES ($1, $2, 'Se modificó el estatus del estatus de ticket.')"
 		_, err = tx.Exec(insertLogEstatus, estatusTicketNuevo.ID, usuarioAdminID)
 		if err != nil {
@@ -149,17 +148,17 @@ func ActualizarEstatusTicket(c *gin.Context) {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusOK, "Estatus de ticket actualizado correctamente.")
 }
 
+// CrearEstatusTicket registra un nuevo estatus de ticket y deja traza en logs_estatus_ticket.
+// Utiliza transacción para garantizar atomicidad entre inserción y log.
 func CrearEstatusTicket(c *gin.Context) {
 	adminID, existe := c.Get("usuario_id")
 	if !existe {
 		utils.RespuestaJSON(c, http.StatusUnauthorized, "Usuario no autenticado")
 		return
 	}
-
 	usuarioAdminID, ok := adminID.(int)
 	if !ok {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, "Error de tipo de dato")
@@ -173,7 +172,6 @@ func CrearEstatusTicket(c *gin.Context) {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	defer func() {
 		if p := recover(); p != nil {
 			_ = tx.Rollback()
@@ -196,6 +194,7 @@ func CrearEstatusTicket(c *gin.Context) {
 		return
 	}
 
+	// Log de auditoría para trazabilidad de cambios.
 	queryLog := "INSERT INTO logs_estatus_ticket (estatus_ticket_id, usuario_id, accion) VALUES ($1, $2, 'Registro de nuevo estatus de ticket en el sistema.')"
 	_, err = tx.Exec(queryLog, estatusTicket.ID, usuarioAdminID)
 	if err != nil {
@@ -210,6 +209,5 @@ func CrearEstatusTicket(c *gin.Context) {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	utils.RespuestaJSON(c, http.StatusCreated, "Estatus de ticket creado exitosamente.")
 }

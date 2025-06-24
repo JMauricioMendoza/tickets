@@ -8,9 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// SetupRouter configura y retorna el router principal de la API.
+// Define rutas públicas y protegidas, así como middleware de autenticación y autorización.
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	// Configuración de CORS para permitir peticiones desde el frontend.
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:8080"},
 		AllowMethods:     []string{"GET", "POST", "DELETE", "OPTIONS", "PATCH"},
@@ -20,19 +23,14 @@ func SetupRouter() *gin.Engine {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	//Sesion
+	// Rutas públicas (no requieren autenticación)
 	r.POST("/IniciarSesion", IniciarSesion)
 	r.DELETE("/CerrarSesion/:usuario_id", CerrarSesion)
-
-	//Ticket
 	r.POST("/CrearTicket", CrearTicket)
-
-	// TipoTicket
 	r.GET("/ObtenerTipoTicketsActivos", ObtenerTipoTicketsActivos)
-
-	// Area
 	r.GET("/ObtenerAreasActivos", ObtenerAreasActivos)
 
+	// Grupo de rutas protegidas por autenticación JWT.
 	auth := r.Group("/")
 	auth.Use(middleware.AutenticacionMiddleware())
 	{
@@ -41,14 +39,14 @@ func SetupRouter() *gin.Engine {
 		auth.GET("/ObtenerTicketPorID/:id", ObtenerTicketPorID)
 		auth.PATCH("/ActualizarTicket", ActualizarTicket)
 
-		// Estatus ticket
+		// Estatus ticket (algunas rutas sólo para administradores)
 		auth.GET("/ObtenerEstatusTicketsActivos", ObtenerEstatusTicketsActivos)
 		auth.GET("/ObtenerEstatusTickets", middleware.AdministradorMiddleware(), ObtenerEstatusTickets)
 		auth.GET("/ObtenerEstatusTicketsPorID/:id", middleware.AdministradorMiddleware(), ObtenerEstatusTicketsPorID)
 		auth.PATCH("/ActualizarEstatusTicket", middleware.AdministradorMiddleware(), ActualizarEstatusTicket)
 		auth.POST("/CrearEstatusTicket", middleware.AdministradorMiddleware(), CrearEstatusTicket)
 
-		// Usuario
+		// Usuario (todas las rutas requieren privilegios de administrador)
 		auth.GET("/ObtenerUsuariosActivos", middleware.AdministradorMiddleware(), ObtenerUsuariosActivos)
 		auth.GET("/ObtenerUsuariosInactivos", middleware.AdministradorMiddleware(), ObtenerUsuariosInactivos)
 		auth.GET("/ObtenerUsuarioPorID/:id", middleware.AdministradorMiddleware(), ObtenerUsuarioPorID)
@@ -61,13 +59,13 @@ func SetupRouter() *gin.Engine {
 		// Sesion
 		auth.GET("/VerificaSesion", VerificaSesion)
 
-		//Areas
+		// Área (rutas administrativas)
 		auth.GET("/ObtenerAreas", middleware.AdministradorMiddleware(), ObtenerAreas)
 		auth.POST("/CrearArea", middleware.AdministradorMiddleware(), CrearArea)
 		auth.GET("/ObtenerAreaPorID/:id", middleware.AdministradorMiddleware(), ObtenerAreaPorID)
 		auth.PATCH("/ActualizarArea", middleware.AdministradorMiddleware(), ActualizarArea)
 
-		// TipoTicket
+		// TipoTicket (rutas administrativas)
 		auth.GET("/ObtenerTipoTickets", middleware.AdministradorMiddleware(), ObtenerTipoTickets)
 		auth.GET("/ObtenerTipoTicketPorID/:id", middleware.AdministradorMiddleware(), ObtenerTipoTicketPorID)
 		auth.PATCH("/ActualizarTipoTicket", middleware.AdministradorMiddleware(), ActualizarTipoTicket)

@@ -16,6 +16,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// ObtenerTickets retorna los tickets asociados a los tipos permitidos para el usuario autenticado.
+// Utiliza joins para enriquecer la respuesta y restringe resultados según permisos.
 func ObtenerTickets(c *gin.Context) {
 	usuarioID, existe := c.Get("usuario_id")
 	if !existe {
@@ -29,6 +31,7 @@ func ObtenerTickets(c *gin.Context) {
 		return
 	}
 
+	// Obtiene los tipos de ticket permitidos para el usuario.
 	rowsTipoTicket, err := database.DB.Query("SELECT tipo_ticket_id FROM usuario_tipo_ticket WHERE estatus IS TRUE AND usuario_id = $1", id)
 	if err != nil {
 		utils.RespuestaJSON(c, http.StatusInternalServerError, err.Error())
@@ -45,6 +48,7 @@ func ObtenerTickets(c *gin.Context) {
 		}
 		tipoTicketIDs = append(tipoTicketIDs, tipoTicketID)
 	}
+	// Construye placeholders y argumentos para la consulta IN dinámica.
 	placeholders := []string{}
 	args := []interface{}{}
 	for i, id := range tipoTicketIDs {
@@ -98,6 +102,7 @@ func ObtenerTickets(c *gin.Context) {
 	utils.RespuestaJSON(c, http.StatusOK, "Tickets obtenidos correctamente.", tickets)
 }
 
+// ObtenerTicketPorID retorna la información detallada de un ticket específico por su ID.
 func ObtenerTicketPorID(c *gin.Context) {
 	id := c.Param("id")
 	row := database.DB.QueryRow(`
@@ -125,6 +130,8 @@ func ObtenerTicketPorID(c *gin.Context) {
 	utils.RespuestaJSON(c, http.StatusOK, "Ticket obtenido corretamente.", ticket)
 }
 
+// CrearTicket registra un nuevo ticket y notifica por Telegram.
+// Utiliza transacción para garantizar atomicidad y registra log de auditoría.
 func CrearTicket(c *gin.Context) {
 	var ticket models.Ticket
 	if err := c.BindJSON(&ticket); err != nil {
@@ -164,6 +171,7 @@ func CrearTicket(c *gin.Context) {
 		return
 	}
 
+	// Obtiene información adicional para la notificación.
 	queryTipoTicket := "SELECT nombre FROM tipo_ticket WHERE id = $1"
 	var tipoTicketNombre string
 	err = database.DB.QueryRow(queryTipoTicket, ticket.TipoTicketID).Scan(&tipoTicketNombre)
@@ -180,6 +188,7 @@ func CrearTicket(c *gin.Context) {
 		return
 	}
 
+	// Carga variables de entorno para Telegram.
 	err = godotenv.Load()
 	if err != nil {
 		log.Fatal("Error cargando el archivo .env")
@@ -193,11 +202,13 @@ func CrearTicket(c *gin.Context) {
 		log.Println("Error convirtiendo chatID a int64:", err.Error())
 	}
 
+	// Formato de mensaje para Telegram.
 	message := fmt.Sprintf(
 		"🎫 *Nuevo Ticket*\n*%s*\n%s\n*ID:* %d\n*Área de soporte:* %s\n*Descripción:* %s",
 		ticket.CreadoPor, areaNombre, ticket.ID, tipoTicketNombre, ticket.Descripcion,
 	)
 
+	// Notifica por Telegram usando utilería centralizada.
 	err = utils.EnviarMensajeTelegram(token, chatID, message)
 	if err != nil {
 		log.Println("Error enviando mensaje a Telegram:", err.Error())
@@ -210,6 +221,9 @@ func CrearTicket(c *gin.Context) {
 	)
 }
 
+// ActualizarTicket permite modificar tipo y/o estatus de un ticket.
+// Valida permisos del usuario sobre el tipo de ticket y registra logs de auditoría.
+// Utiliza transacción para garantizar consistencia.
 func ActualizarTicket(c *gin.Context) {
 	usuarioID, existe := c.Get("usuario_id")
 	if !existe {
@@ -249,6 +263,7 @@ func ActualizarTicket(c *gin.Context) {
 		return
 	}
 
+	// Valida que el usuario tenga permiso sobre el tipo de ticket actual.
 	var validoActualiza bool
 	queryPermiso := `
 		SELECT
@@ -271,6 +286,7 @@ func ActualizarTicket(c *gin.Context) {
 		return
 	}
 
+	// Si el tipo de ticket cambió, actualiza y registra log.
 	if ticketNuevo.TipoTicketID != ticketActual.TipoTicketID {
 		updateQueryTipo := "UPDATE ticket SET tipo_ticket_id = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryTipo, ticketNuevo.TipoTicketID, ticketNuevo.ID)
@@ -287,6 +303,7 @@ func ActualizarTicket(c *gin.Context) {
 		}
 	}
 
+	// Si el estatus cambió, actualiza y registra log.
 	if ticketNuevo.EstatusTicketID != ticketActual.EstatusTicketID {
 		updateQueryEstatus := "UPDATE ticket SET estatus_ticket_id = $1, actualizado_en = NOW() WHERE id = $2"
 		_, err = tx.Exec(updateQueryEstatus, ticketNuevo.EstatusTicketID, ticketNuevo.ID)
