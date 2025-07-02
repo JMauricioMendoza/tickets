@@ -25,6 +25,7 @@ async function obtenerDatos({
   onOpen,
   setVarianteModal,
   setMensajeModal,
+  setEstaCargando = null,
 }) {
   const serverURL = process.env.REACT_APP_API_URL;
 
@@ -44,6 +45,9 @@ async function obtenerDatos({
 
     // Intenta parsear la respuesta como JSON, si falla retorna objeto vacío.
     const data = await response.json().catch(() => ({}));
+    if (setEstaCargando) {
+      setEstaCargando(false);
+    }
 
     // Manejo centralizado de errores HTTP.
     if (!response.ok) {
@@ -81,6 +85,9 @@ async function obtenerDatos({
       setDatos(data.datos);
     }
   } catch {
+    if (setEstaCargando) {
+      setEstaCargando(false);
+    }
     // Errores de red o inesperados: feedback de advertencia.
     onOpen();
     setVarianteModal("advertencia");

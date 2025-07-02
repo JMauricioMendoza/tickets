@@ -19,6 +19,8 @@ function Layout({
   textoBotonRegresar,
   rutaBotonRegresar,
 }) {
+  const [estaCargando, setEstaCargando] = useState(true);
+
   return (
     <div className="flex items-start justify-center w-full min-h-screen bg-gray-200">
       <div className="flex flex-col items-center justify-center gap-12 w-[1080px] bg-white rounded-xl px-12 pb-14 shadow-xl">
@@ -27,9 +29,15 @@ function Layout({
           setUsuario={setUsuario}
           textoBotonRegresar={textoBotonRegresar}
           rutaBotonRegresar={rutaBotonRegresar}
+          setEstaCargando={setEstaCargando}
         />
         {children}
       </div>
+      {estaCargando && (
+        <div id="loader">
+          <div className="spinner" />
+        </div>
+      )}
     </div>
   );
 }
@@ -43,6 +51,7 @@ function Encabezado({
   setUsuario,
   textoBotonRegresar,
   rutaBotonRegresar,
+  setEstaCargando,
 }) {
   const [mensajeModal, setMensajeModal] = useState("");
   const [varianteModal, setVarianteModal] = useState("");
@@ -63,12 +72,19 @@ function Encabezado({
       onOpen,
       setVarianteModal,
       setMensajeModal,
+      setEstaCargando,
     });
   }
 
+  const esRutaProtegida = location.pathname !== "/login";
+
   // Solo verifica sesión si no está en la pantalla de login.
   useEffect(() => {
-    if (location.pathname !== "/login") verificaSesion();
+    if (esRutaProtegida) {
+      verificaSesion();
+    } else {
+      setEstaCargando(false);
+    }
   }, []);
 
   return (
