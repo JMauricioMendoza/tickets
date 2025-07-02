@@ -3,6 +3,7 @@ package main
 import (
 	"backgo/database"
 	"backgo/routes"
+	"backgo/utils"
 	"database/sql"
 	"fmt"
 	"log"
@@ -74,6 +75,7 @@ func main() {
 
 	// Ejecuta la limpieza de sesiones en segundo plano.
 	go limpiarSesiones(database.DB)
+	go utils.EnviarMensajesPendientes(database.DB)
 
 	r := routes.SetupRouter()
 

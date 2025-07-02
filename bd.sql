@@ -246,7 +246,8 @@ CREATE TABLE "public"."ticket" (
   "creado_en" timestamp(0) NOT NULL DEFAULT now(),
   "actualizado_en" timestamp(0),
   "creado_por" varchar(150) COLLATE "pg_catalog"."default" NOT NULL,
-  "area_id" int8 NOT NULL
+  "area_id" int8 NOT NULL,
+  "telegram_notificado" bool NOT NULL DEFAULT false
 )
 ;
 

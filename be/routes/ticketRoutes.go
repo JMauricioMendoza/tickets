@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -194,14 +192,6 @@ func CrearTicket(c *gin.Context) {
 		log.Fatal("Error cargando el archivo .env")
 	}
 
-	token := os.Getenv("TELEGRAM_TOKEN")
-	chatIDStr := os.Getenv("TELEGRAM_CHAT_ID")
-
-	chatID, err := strconv.ParseInt(chatIDStr, 10, 64)
-	if err != nil {
-		log.Println("Error convirtiendo chatID a int64:", err.Error())
-	}
-
 	// Formato de mensaje para Telegram.
 	message := fmt.Sprintf(
 		"🎫 *Nuevo Ticket*\n*%s*\n%s\n*ID:* %d\n*Área de soporte:* %s\n*Descripción:* %s",
@@ -209,7 +199,7 @@ func CrearTicket(c *gin.Context) {
 	)
 
 	// Notifica por Telegram usando utilería centralizada.
-	err = utils.EnviarMensajeTelegram(token, chatID, message)
+	err = utils.EnviarMensajeTelegram(message, ticket.ID)
 	if err != nil {
 		log.Println("Error enviando mensaje a Telegram:", err.Error())
 	}
