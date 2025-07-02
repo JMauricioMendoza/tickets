@@ -132,9 +132,8 @@ function ListaTickets({ ticketsFiltrados }) {
   // Mapeo de colores por estatus para visual feedback.
   const coloresPorEstatus = {
     1: "warning",
-    2: "secondary",
-    3: "success",
-    4: "danger",
+    2: "success",
+    3: "danger",
   };
 
   return (
