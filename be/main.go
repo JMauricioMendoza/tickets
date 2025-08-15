@@ -82,6 +82,7 @@ func main() {
 	// Sirve archivos estáticos del frontend compilado (React).
 	r.Static("/static", "./fe/build/static")
 	r.StaticFile("/", "./fe/build/index.html")
+	r.StaticFile("/favicon.ico", "./fe/build/favicon.ico")
 
 	// Soporte para Single Page Application: cualquier ruta no encontrada sirve index.html.
 	r.NoRoute(func(c *gin.Context) {
